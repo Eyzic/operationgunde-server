@@ -8,7 +8,7 @@ The api is written in Python 3.
 * Flask_restful
 
 
-First navigate to the folder containing the repo on your local machine in a termianl and create a virtual environment using `python -m venv env`. Then activate it by typing `env/Scripts/activate` for windows and `source env/bin/activate` on linux and mac.
+First navigate to the folder containing the repo on your local machine in a terminal and create a virtual environment using `python -m venv env`. Then activate it by typing `env/Scripts/activate` for windows and `source env/bin/activate` on linux and mac.
 
 To install the dependencies, simply write `pip install -r requirements.txt` on windows or `pip3 install -r requirements.txt` on mac and linux.
 
