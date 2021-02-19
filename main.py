@@ -2,19 +2,26 @@ from flask import Flask
 from flask_restful import Api, Resource
 from pymongo import MongoClient
 import config.keys as config 
+from bson.json_util import loads, dumps
+from flask_cors import CORS
 
-
-client = MongoClient(config.mongodb["mongo_URI"])
+client = MongoClient(config.mongodb["URI"])
 db = client.get_database('Test')
 sensor_data = db.sensor_data
 
 app = Flask(__name__)
 api = Api(app)
+CORS(app)
 
 @app.route("/")
 def home():
-    greeting = "Hello, this is some sample text!"
-    return str(list(sensor_data.find())[0]['value']) 
+    return "Hello, this is some sample text!"
+
+@app.route("/database")
+def database():
+    item = list(sensor_data.find())[0]
+    json_item = dumps(item)
+    return json_item 
 
 @app.route("/<name>")
 def user(name):
