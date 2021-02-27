@@ -1,11 +1,11 @@
-$("form[name=signup_form").submit(function(e) {
+  $("form[name=signup_form").submit(function(e) {
 
     var $form = $(this);
     var $error = $form.find(".error");
     var data = $form.serialize();
   
     $.ajax({
-      url: "/user/signup",
+      url: "/users/signup",
       type: "POST",
       data: data,
       dataType: "json",
@@ -27,7 +27,7 @@ $("form[name=signup_form").submit(function(e) {
     var data = $form.serialize();
   
     $.ajax({
-      url: "/user/login",
+      url: "/users/login",
       type: "POST",
       data: data,
       dataType: "json",

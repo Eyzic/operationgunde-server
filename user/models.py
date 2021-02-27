@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request, session, redirect
+from flask import Flask, jsonify, request, session, redirect, render_template
 from passlib.hash import pbkdf2_sha256
 from database import db
 import uuid
@@ -50,3 +50,6 @@ class User:
       return self.start_session(user)
     
     return jsonify({ "error": "Invalid login credentials" }), 401
+
+  def dashboard(self):
+    return render_template('dashboard.html')
