@@ -1,8 +1,8 @@
-from flask import Flask, render_template, Blueprint
+from flask import Flask, render_template, Blueprint, redirect
 from flask_restful import Api
 from bson.json_util import loads, dumps
 from flask_cors import CORS
-from user.routes import user_page
+from user.routes import *
 
 
 app = Flask(__name__)
