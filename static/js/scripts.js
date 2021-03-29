@@ -5,7 +5,7 @@
     var data = $form.serialize();
   
     $.ajax({
-      url: "/users/signup",
+      url: "/user/signup",
       type: "POST",
       data: data,
       dataType: "json",
@@ -27,7 +27,7 @@
     var data = $form.serialize();
   
     $.ajax({
-      url: "/users/login",
+      url: "/user/login",
       type: "POST",
       data: data,
       dataType: "json",

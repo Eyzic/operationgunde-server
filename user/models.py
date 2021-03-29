@@ -15,6 +15,8 @@ class User:
   def signup(self):
         
     # Create the user object
+    # Change from .form.get('name') to .get_json()['name']
+
     user = {
       "_id": uuid.uuid4().hex,
       "name": request.form.get('name'),
