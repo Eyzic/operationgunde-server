@@ -4,10 +4,12 @@ from bson.json_util import loads, dumps
 from flask_cors import CORS
 from user.routes import *
 from api.routes import *
+from strava.routes import *
 
 app = Flask(__name__)
 app.register_blueprint(user_page)
 app.register_blueprint(api_page)
+app.register_blueprint(strava_page)
 api = Api(app)
 CORS(app)
 
