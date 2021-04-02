@@ -16,15 +16,6 @@ CORS(app)
 def home():
     return render_template('home.html')
 
-#################################
-# Database
-
-@app.route("/database")
-def database():
-    item = list(sensor_data.find())[0]
-    json_item = dumps(item)
-    return json_item 
-
 ##################################
 # Method 1
 

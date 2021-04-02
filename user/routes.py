@@ -26,7 +26,7 @@ def login_required(f):
             return redirect('/')
 '''
 
-@user_page.route('/dashboard')
+@user_page.route('/dashboard/')
 # @login_required
 def dashboard():
    return render_template('dashboard.html')
