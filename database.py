@@ -10,4 +10,4 @@ db = client.get_database('Test')
 
 # Strava API database
 oauth2 = strava_oauth2(client_id=config.strava['client_id'], client_secret=config.strava['client_secret'])
-config.strava['access_token'] = oauth2
+config.strava['access_token'] = oauth2['access_token']
