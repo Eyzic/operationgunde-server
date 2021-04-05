@@ -1,6 +1,7 @@
 from flask import Flask, Blueprint, render_template, session, redirect, jsonify, request
 from database import db
 from bson.json_util import loads, dumps
+import json
 
 api_page = Blueprint('api_page', __name__)
 
@@ -13,13 +14,13 @@ def index():
 def post_stats():
     
     # Store parameters from the ge
-    json_payload = request.args
+    json_payload = request.get_json()
     
     params = {'user', 'date', 'hrv', 'sleeping_hours', 'stress_level', 'muscle_ache', 'mood_level', 'injury_level', 'energy_level'}
     stats = {}
 
     for param in params:
-        stats[param] = json_payload.get(param)
+        stats[param] = json_payload[param]
 
     # Checks if 'user' and 'date' matches an existing document in the database
     if db.stats_data.find({ "user": json_payload['user'], 'date': json_payload['date']}).count() > 0:
@@ -37,8 +38,9 @@ def post_stats():
 @api_page.route('/api/stats', methods=['GET'])
 def get_stats():
 
-    user = request.args.get('user')
-    date = request.args.get('date')
+    data = request.get_json()
+    user = data['user']
+    date = data['date']
     
     # Checks if 'user' and 'date' matches an existing document in the database
     if db.stats_data.find({"user": user, 'date': date}).count() == 0:
@@ -58,8 +60,9 @@ def get_stats():
 @api_page.route('/api/stats', methods=['DELETE'])
 def delete_stats():
 
-    user = request.args.get('user')
-    date = request.args.get('date')
+    data = request.get_json()
+    user = data['user']
+    date = data['date']
 
     # Checks if 'user' and 'date' matches an existing document in the database
     if db.stats_data.find({"user": user, 'date': date}).count() == 0:
@@ -76,8 +79,9 @@ def delete_stats():
 @api_page.route('/api/stats/hrv', methods=['GET'])
 def get_stats_hrv():
     
-    user = request.args.get('user')
-    date = request.args.get('date')
+    data = request.get_json()
+    user = data['user']
+    date = data['date']
     
     # Checks if 'user' and 'date' matches an existing document in the database
     if db.stats_data.find({"user": user, 'date': date}).count() == 0:
@@ -91,13 +95,13 @@ def get_stats_hrv():
 @api_page.route('/api/training', methods=['POST'])
 def post_training():
     
-    json_payload = request.args
+    json_payload = request.get_json()
     
     params = {'user', 'activity_id' 'training_intensity', 'training_type', 'training_duration', 'energy_level'}
     training_data = {}
 
     for param in params:
-        training_data[param] = json_payload.get(param)
+        training_data[param] = json_payload[param]
 
     # Checks if 'user' and 'date' matches an existing document in the database
     if db.training_data.find({ "activity_id": json_payload['activity_id']}).count() > 0:
