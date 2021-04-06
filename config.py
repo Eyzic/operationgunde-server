@@ -10,8 +10,9 @@ mongodb = {
 }
 
 strava = {
-    "client_id" : "62111" ,
-    "client_secret" : "00295152a762be432ee05b08bdd7367e570bd972" ,
-    "access_token" : "a7db3e02cea9b734c810eaf0a615596ad827ff05" ,
-    "refresh_token" : "06cbd0a56c10357d40846272b02fbab263b0791a" 
+    "STRAVA_CLIENT_ID" : "62111" ,
+    "STRAVA_CLIENT_SECRET" : "00295152a762be432ee05b08bdd7367e570bd972" ,
+    "STRAVA_ACCESS_TOKEN" : "a7db3e02cea9b734c810eaf0a615596ad827ff05" ,
+    "STRAVA_REFRESH_TOKEN" : "06cbd0a56c10357d40846272b02fbab263b0791a",
+    "STRAVA_FETCH_DATA_DATE": "2021-04-01"
 }

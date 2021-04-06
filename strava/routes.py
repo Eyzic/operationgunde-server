@@ -1,40 +1,79 @@
-from flask import Flask, Blueprint, render_template, session, redirect, jsonify, request
+from flask import Flask, Blueprint, render_template, session, redirect, jsonify, request, url_for
 from strava.models import *
 import json
 import config
 from stravaio import StravaIO
 from stravaio import strava_oauth2
+from database import db
 import requests
 import urllib3
+import urllib
 import os.path
 import glob
+import webbrowser
 
-strava_page = Blueprint('strava_page', __name__)
+strava_page = Blueprint('strava_page.authorization_successful', __name__)
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-@strava_page.route("/strava/authorize", methods=['GET'])
+# Generate authorization URL to authorization the Strava API
+@strava_page.route("/strava/authorize")
 def authorize():
-    oauth2 = strava_oauth2(client_id=config.strava['client_id'], client_secret=config.strava['client_secret'])
-    access_token = oauth2['access_token']
-
-    load_athlete(access_token)
-    load_activities(access_token)
     
-    return jsonify('OK')
+    app_url = 'http://127.0.0.1:5000'
+    params = {
+        "client_id": config.strava['STRAVA_CLIENT_ID'],
+        "response_type": "code",
+        "redirect_uri": f"{app_url}/strava/authorization_successful",
+        "scope": "read,profile:read_all,activity:read",
+        "state": 'mystate',
+        "approval_prompt": "force"
+    }
+    values_url = urllib.parse.urlencode(params)
+    base_url = 'https://www.strava.com/oauth/authorize'
+    rv = base_url + '?' + values_url
+    # print(f"Authorize url = {rv}")
+    
+    webbrowser.get().open(rv)
+
+    return jsonify(rv)
+
+# /strava/authorize redirects to strava/authorization_successful
+# Stores the data from Strava both locally and to MongoDB
+@strava_page.route("/strava/authorization_successful")
+def authorization_successful():
+
+    params = {
+        "client_id": config.strava['STRAVA_CLIENT_ID'],
+        "client_secret": config.strava['STRAVA_CLIENT_SECRET'],
+        "code": request.args.get('code'),
+        "grant_type": "authorization_code"
+    }
+    
+    r = requests.post("https://www.strava.com/oauth/token", params)
+    response = json.loads(r.text)
+
+    if 'access_token' in response:
+        access_token = response['access_token']
+        load_athlete(access_token)
+        load_activities(access_token)
+        return jsonify({ "message": "Data successfully retrieved" })
+    else:
+        return jsonify({ "error": "Failed to get access_token" })
+    
 
 # Send a parameter in JSON of the ID and get name as a return
 # Retrieves from local storage
 @strava_page.route('/strava/athlete', methods=['GET'])
 def athlete():
-    id = request.args.get('id')
+    athlete_id = request.get_json()['athlete_id']
     dir_name = os.path.join(os.path.expanduser('~'), '.stravadata')
-    f_name = os.path.join(dir_name, f"athlete_{id}.json")
+    f_name = os.path.join(dir_name, f"athlete_{athlete_id}.json")
     try:
         with open(f_name, 'r') as f:
             data = json.load(f)
             rv = {'firstname': data['firstname'],
-                  'lastname': data['lastname'],
-                  'id': id}
+                  'lastname': data['lastname']
+                  }
     except Exception as error:
         print(error)
         rv = None
@@ -42,21 +81,20 @@ def athlete():
     return rv
 
 # Returns all activity data from athlete ID
-# Params = {'id'}
 # Retrieves from local storage
-@strava_page.route("/strava/activities")
+@strava_page.route("/strava/activities", methods=['GET'])
 def activities():
 
-    athlete_id = request.args.get('id')
+    athlete_id = request.get_json()['athlete_id']
     dir_activities = os.path.join(os.path.expanduser('~'), f'.stravadata/activities_{athlete_id}')
 
     if not os.path.exists(dir_activities):
-        return "Directory missing"
+        return jsonify(f"Directory missing for athlete {athlete_id}")
 
     list = []
 
-    for file_name in glob.glob(os.path.join(dir_activities, '*.json')):
-        with open(file_name) as f:
+    for f_name in glob.glob(os.path.join(dir_activities, '*.json')):
+        with open(f_name) as f:
             data = json.load(f)
             
             json_activity = {
@@ -70,6 +108,8 @@ def activities():
                 'type': data['type']
             }
 
+            
+
             list.append(json_activity)
 
     return jsonify(list)
@@ -81,14 +121,14 @@ def athlete_all():
     dir_name = os.path.join(os.path.expanduser('~'), '.stravadata')
     list = []
 
-    for file_name in glob.glob(os.path.join(dir_name, '*.json')):
-        with open(file_name) as f:
+    for f_name in glob.glob(os.path.join(dir_name, '*.json')):
+        with open(f_name) as f:
             data = json.load(f)
             
             json_athlete = {
                 'firstname': data['firstname'],
                 'lastname': data['lastname'],
-                'id': data['id']
+                'athlete_id': data['id']
             }
 
             list.append(json_athlete)
@@ -103,15 +143,26 @@ def load_athlete(access_token):
     f_name = os.path.join(os.path.expanduser('~'), f'.stravadata/athlete_{athlete_id}.json')
     
     if os.path.isfile(f_name):
-        print("Already stored")
+        # print(f"Athlete {athlete_id}: Already exists locally")
+
+        if db.strava_athlete_data.find({'athlete_id': athlete_id}).count() == 0:
+            store_athlete_in_mongo(athlete_id)
+
     else:
         athlete.store_locally()
-        print(f"Athlete {athlete.to_dict()['id']} stored")
+        # print(f"Athlete {athlete_id}: Stored locally")
+        store_athlete_in_mongo(athlete_id)
+        
 
 # Load athletes acitivties into local storage
 def load_activities(access_token):
+
+    # Date cariable that sets the lower range for Strava data acquisition  
+    get_from_date = config.strava['STRAVA_FETCH_DATA_DATE']
+    if get_from_date is None: get_from_date = "2021-04-01"
+
     client = StravaIO(access_token)
-    activities = client.get_logged_in_athlete_activities(after='2021-04-01')
+    activities = client.get_logged_in_athlete_activities(after=get_from_date)
     athlete_id = client.get_logged_in_athlete().api_response.id
 
     for a in activities:
@@ -120,9 +171,88 @@ def load_activities(access_token):
         f_name = os.path.join(os.path.expanduser('~'), f'.stravadata/activities_{athlete_id}/activity_{activity_id}.json')
 
         if os.path.isfile(f_name):
-            print("Already stored")
-        else:
-            activity.store_locally()
-            print(f"Activity {activity.to_dict()['id']} stored")
+            # print(f"Activity {activity_id}: Already exists locally")
 
-#def store_mongo():
+            if db.strava_activity_data.find({'activity_id': activity_id}).count() == 0:
+                store_activity_in_mongo(athlete_id, activity_id)
+
+        else:
+            activity.store_locally() 
+            store_activity_in_mongo(athlete_id, activity_id)
+            # print(f"Activity {activity_id}: Stored locally")
+    
+# Submit local athlete data to MongoDB
+def store_athlete_in_mongo(athlete_id):
+
+    """Store athlete in MongoDB"""
+
+    dir_name = os.path.join(os.path.expanduser('~'), '.stravadata')
+    f_name = os.path.join(dir_name, f"athlete_{athlete_id}.json")
+
+    try:    
+        with open(f_name, 'r') as f:
+            data = json.load(f)
+            res = db.strava_athlete_data.update_one(
+                {
+                    'athlete_id': data['id']
+                }, 
+                {
+                    "$set":{
+                        'firstname': data['firstname'],
+                        'lastname': data['lastname'],
+                    }
+                },    
+                upsert = True
+                )
+            
+            if res.matched_count > 0:
+                # print(f"{data['firstname']} {data['lastname']} already in database")
+            elif db.strava_athlete_data.find({'athlete_id': athlete_id}).count() > 0:
+                # print(f"{data['firstname']} {data['lastname']} uploaded to database")
+            else: 
+                print("Error when uploading")
+            
+    except Exception as error:
+        print(error)
+
+# Submit local activity data to MongoDB
+def store_activity_in_mongo(athlete_id, activity_id):
+
+    """Store activity in MongoDB"""
+    
+    dir_activities = os.path.join(os.path.expanduser('~'), f'.stravadata/activities_{athlete_id}')
+    f_name = os.path.join(dir_activities, f"activity_{activity_id}.json")
+
+    if not os.path.exists(dir_activities):
+        return jsonify(f"Directory missing for athlete {athlete_id}")
+
+    try:    
+        with open(f_name, 'r') as f:
+            data = json.load(f)
+            res = db.strava_activity_data.update_one(
+                {
+                    'activity_id': data['id']
+                }, 
+                {
+                    "$set":{
+                        'athlete_id': data['athlete']['id'],
+                        'start_date': data['start_date'],
+                        'start_date_local': data['start_date_local'],
+                        'distance': data['distance'],
+                        'moving_time': data['moving_time'],
+                        'elapsed_time': data['elapsed_time'],
+                        'type': data['type']
+                    }
+                },    
+                upsert = True
+                )
+            
+            if res.matched_count > 0:
+                # print(f"Activity {data['id']} already in database")
+            elif db.strava_activity_data.find({'activity_id': data['id']}).count() > 0:
+                # print(f"Activity {data['id']} uploaded to database")
+            else: 
+                print("Error when uploading")
+        
+    except Exception as error:
+        print(error)
