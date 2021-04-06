@@ -37,4 +37,4 @@ To access the Strava data the user first needs to call `http://[hostname]/strava
 | GET | http://[hostname]/strava/authorize | empty | {URL to strava authorization} | Authorize the server to get data from the Strava API |
 | GET | http://[hostname]/strava/athlete | {'athlete_id': Integer} | {'firstname', 'lastname'} | Gets athlete data from athlete_id |
 | GET | http://[hostname]/strava/activities | {'athlete_id': Integer} | [{'id', 'athlete', 'start_date', 'start_date_local', 'distance', 'moving_time', 'elapsed_time', 'type'}] | Returns a list of all activities from athlete_id |
-| GET | http://[hostname]/strava/athlete_all | empty | {'firstname', 'lastname', 'athlete_id'} | Returns all stored athletes in local storage |
+| GET | http://[hostname]/strava/athlete_all | empty | {'firstname', 'lastname', 'athlete_id'} | Returns all stored athletes in MongoDB |
