@@ -103,7 +103,6 @@ def activities():
                 })
 
             rv.append(res)
-            print(res)
 
     except Exception as error:
         print(error)
