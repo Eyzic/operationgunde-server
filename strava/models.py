@@ -6,6 +6,7 @@ import numpy
 import requests
 import urllib3
 import os.path
+import json
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -32,5 +33,131 @@ def refresh_token():
 
     return access_token
 
+# Load athlete into local storage
+def load_athlete(access_token):
+    client = StravaIO(access_token)
+    athlete = client.get_logged_in_athlete()
+    strava_id = athlete.api_response.id
+    f_name = os.path.join(os.path.expanduser('~'), f'.stravadata/athlete_{strava_id}.json')
+    
+    if os.path.isfile(f_name):
+        #print(f"Athlete {strava_id}: Already exists locally")
+
+        if db.strava_athlete_data.find({'strava_id': strava_id}).count() == 0:
+            store_athlete_in_mongo(strava_id)
+
+    else:
+        athlete.store_locally()
+        #print(f"Athlete {strava_id}: Stored locally")
+        store_athlete_in_mongo(strava_id)
+        
+
+# Load athletes acitivties into local storage
+def load_activities(access_token):
+
+    # Date cariable that sets the lower range for Strava data acquisition  
+    get_from_date = config.strava['STRAVA_FETCH_DATA_DATE']
+    if get_from_date is None: get_from_date = "2021-04-01"
+
+    client = StravaIO(access_token)
+    activities = client.get_logged_in_athlete_activities(after=get_from_date)
+    strava_id = client.get_logged_in_athlete().api_response.id
+
+    for a in activities:
+        activity_id = a.id
+        activity = client.get_activity_by_id(activity_id)
+        f_name = os.path.join(os.path.expanduser('~'), f'.stravadata/activities_{strava_id}/activity_{activity_id}.json')
+
+        if os.path.isfile(f_name):
+            #print(f"Activity {activity_id}: Already exists locally")
+
+            if db.activity_data.find({'activity_id': activity_id}).count() == 0:
+                store_activity_in_mongo(strava_id, activity_id)
+
+        else:
+            activity.store_locally() 
+            store_activity_in_mongo(strava_id, activity_id)
+            #print(f"Activity {activity_id}: Stored locally")
+    
+# Submit local athlete data to MongoDB
+def store_athlete_in_mongo(strava_id):
+
+    """Store athlete in MongoDB"""
+
+    dir_name = os.path.join(os.path.expanduser('~'), '.stravadata')
+    f_name = os.path.join(dir_name, f"athlete_{strava_id}.json")
+
+    try:    
+        with open(f_name, 'r') as f:
+            data = json.load(f)
+            res = db.strava_athlete_data.update_one(
+                {
+                    'strava_id': data['id']
+                }, 
+                {
+                    "$set":{
+                        'firstname': data['firstname'],
+                        'lastname': data['lastname'],
+                    }
+                },    
+                upsert = True
+                )
+            
+            """
+            if res.matched_count > 0:
+                print(f"{data['firstname']} {data['lastname']} already in database")
+            elif db.strava_athlete_data.find({'strava_id': strava_id}).count() > 0:
+                print(f"{data['firstname']} {data['lastname']} uploaded to database")
+            else: 
+                print("Error when uploading")
+            """
+            
+    except Exception as error:
+        print(error)
+
+# Submit local activity data to MongoDB
+def store_activity_in_mongo(strava_id, activity_id):
+
+    """Store activity in MongoDB"""
+    
+    dir_activities = os.path.join(os.path.expanduser('~'), f'.stravadata/activities_{strava_id}')
+    f_name = os.path.join(dir_activities, f"activity_{activity_id}.json")
+
+    if not os.path.exists(dir_activities):
+        return jsonify(f"Directory missing for athlete {strava_id}")
+
+    try:    
+        with open(f_name, 'r') as f:
+            data = json.load(f)
+            res = db.activity_data.update_one(
+                {
+                    'activity_id': data['id']
+                }, 
+                {
+                    "$set":{
+                        'strava_id': data['athlete']['id'],
+                        'start_date': data['start_date'],
+                        'title': data['name'],
+                        'start_date_local': data['start_date_local'],
+                        'distance': data['distance'],
+                        'moving_time': data['moving_time'],
+                        'elapsed_time': data['elapsed_time'],
+                        'type': data['type']
+                    }
+                },    
+                upsert = True
+                )
+
+            """
+            if res.matched_count > 0:
+                print(f"Activity {data['id']} already in database")
+            elif db.activity_data.find({'activity_id': data['id']}).count() > 0:
+                print(f"Activity {data['id']} uploaded to database")
+            else: 
+                print("Error when uploading")
+            """
+
+    except Exception as error:
+        print(error)
 
 

@@ -19,9 +19,11 @@ class User:
 
     user = {
       "_id": uuid.uuid4().hex,
+      "user_id": request.form.get('user_id'),
       "name": request.form.get('name'),
       "email": request.form.get('email'),
       "password": request.form.get('password')
+       
     }
 
     # Encrypt the password

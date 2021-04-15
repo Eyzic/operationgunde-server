@@ -22,11 +22,13 @@ The following is a quick guide on how to communicate with the database. Packages
 
 | HTTP Method | URI | Payload | Returns | Action | 
 | --- | --- | --- | --- | --- |
-| GET | http://[hostname]/api/stats | {'user': Integer, 'date': String [YYYY-MM-DD]} | {'user', 'date', 'hrv', 'sleeping_hours', 'stress_level', 'muscle_ache', 'mood_level', 'injury_level', 'energy_level'} or error | Get a stats document based on user and date |
-| POST | http://[hostname]/api/stats | {'user': Integer, 'date': String [YYYY-MM-DD], 'hrv': Integer, 'sleeping_hours': Integer, 'stress_level': Integer, 'muscle_ache': Integer, 'mood_level': Integer, 'injury_level' : Integer, 'energy_level': Integer} | {error} or {messages} | Post the stats form (HRV form) to database |
-| DELETE | http://[hostname]/api/stats | {'user': Integer, 'date': String [YYYY-MM-DD]} | {error} or {messages} | Delete a stats document based on user and date |
-| GET | http://[hostname]/api/stats/hrv | {'user': Integer, 'date': String [YYYY-MM-DD]} | Integer | Get HRV data from user and date |
-| POST | http://[hostname]/api/training | {'user': Integer, 'activity_id': Integer, 'training_intensity': Integer, 'training_type': String, 'training_duration': Integer, 'energy_level': Integer} | {error} or {messages} | Post the training form (after training form) to database |
+| GET | http://[hostname]/api/stats | {'user_id': String, 'date': String [YYYY-MM-DD]} | {'user_id', 'date', 'hrv', 'sleeping_hours', 'stress_level', 'muscle_ache', 'mood_level', 'injury_level', 'energy_level'} or error | Get a stats document based on user_id and date |
+| POST | http://[hostname]/api/stats | {'user_id': String, 'date': String [YYYY-MM-DD], 'hrv': Integer, 'sleeping_hours': Integer, 'stress_level': Integer, 'muscle_ache': Integer, 'mood_level': Integer, 'injury_level' : Integer, 'energy_level': Integer} | {error} or {messages} | Post the stats form (HRV form) to database |
+| DELETE | http://[hostname]/api/stats | {'user_id': String, 'date': String [YYYY-MM-DD]} | {error} or {messages} | Delete a stats document based on user_id and date |
+| GET | http://[hostname]/api/stats/hrv | {'user_id': String, 'date': String [YYYY-MM-DD]} | Integer | Get HRV data from user_id and date |
+| POST | http://[hostname]/api/training | {'user_id': String, 'activity_id': String, 'training_intensity': Integer, 'training_type': String, 'training_duration': Integer, 'energy_level': Integer} | {error} or {messages} | Post the training form (after training form) to database |
+| POST | http://[hostname]/api/stats/group | {'user_id': String, 'group': String} | {message} | Adds a group to an user |
+| POST | http://[hostname]/api/stats/organisation | {'user_id': String, 'organisation': String} | {message} | Adds an organisation to an user |
 
 ## Connecting to the Strava API and retrieving data to MongoDB
 
@@ -35,6 +37,6 @@ To access the Strava data the user first needs to call `http://[hostname]/strava
 | HTTP Method | URI | Payload | Returns | Action | 
 | --- | --- | --- | --- | --- |
 | GET | http://[hostname]/strava/authorize | empty | {URL to strava authorization} | Authorize the server to get data from the Strava API |
-| GET | http://[hostname]/strava/athlete | {'athlete_id': Integer} | {'firstname', 'lastname'} | Gets athlete data from athlete_id |
-| GET | http://[hostname]/strava/activities | {'athlete_id': Integer} | [{'id', 'athlete', 'start_date', 'start_date_local', 'distance', 'moving_time', 'elapsed_time', 'type'}] | Returns a list of all activities from athlete_id |
-| GET | http://[hostname]/strava/athlete_all | empty | {'firstname', 'lastname', 'athlete_id'} | Returns all stored athletes in MongoDB |
+| GET | http://[hostname]/strava/athlete | {'strava_id': String} | {'firstname', 'lastname'} | Gets athlete data from strava_id |
+| GET | http://[hostname]/strava/activities | {'strava_id': String} | [{'activity_id', 'strava_id', 'start_date', 'start_date_local', 'distance', 'moving_time', 'elapsed_time', 'type'}] | Returns a list of all activities from strava_id |
+| GET | http://[hostname]/strava/athlete_all | empty | {'firstname', 'lastname', 'strava_id'} | Returns all stored athletes in MongoDB |
