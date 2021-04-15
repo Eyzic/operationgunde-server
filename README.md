@@ -29,6 +29,7 @@ The following is a quick guide on how to communicate with the database. Packages
 | POST | http://[hostname]/api/training | {'user_id': String, 'activity_id': String, 'training_intensity': Integer, 'training_type': String, 'training_duration': Integer, 'energy_level': Integer} | {error} or {messages} | Post the training form (after training form) to database |
 | POST | http://[hostname]/api/stats/group | {'user_id': String, 'group': String} | {message} | Adds a group to an user |
 | POST | http://[hostname]/api/stats/organisation | {'user_id': String, 'organisation': String} | {message} | Adds an organisation to an user |
+| GET | http://[hostname]/api/activities | {'user_id': String, 'nb_activities': Integer} | [{'activity_id', 'strava_id', 'title', 'average_heartrate', 'start_date_local', 'distance', 'moving_time', 'elapsed_time', 'type'}] | Returns a list of all stored activities from user_id |
 
 ## Connecting to the Strava API and retrieving data to MongoDB
 
@@ -38,5 +39,4 @@ To access the Strava data the user first needs to call `http://[hostname]/strava
 | --- | --- | --- | --- | --- |
 | GET | http://[hostname]/strava/authorize | empty | {URL to strava authorization} | Authorize the server to get data from the Strava API |
 | GET | http://[hostname]/strava/athlete | {'strava_id': String} | {'firstname', 'lastname'} | Gets athlete data from strava_id |
-| GET | http://[hostname]/strava/activities | {'strava_id': String} | [{'activity_id', 'strava_id', 'start_date', 'start_date_local', 'distance', 'moving_time', 'elapsed_time', 'type'}] | Returns a list of all activities from strava_id |
 | GET | http://[hostname]/strava/athlete_all | empty | {'firstname', 'lastname', 'strava_id'} | Returns all stored athletes in MongoDB |

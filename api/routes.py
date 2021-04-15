@@ -3,6 +3,7 @@ from database import db
 from bson.json_util import loads, dumps
 import requests
 import json
+import pymongo
 
 api_page = Blueprint('api_page', __name__)
 
@@ -89,6 +90,49 @@ def get_stats_hrv():
 
     return jsonify(doc['hrv'])
 
+
+#@api_page.route('/api/activity', methods=['GET'])
+#def get_activity():
+
+
+# Returns all activity data from athlete ID
+@api_page.route("/api/activities", methods=['GET'])
+def activities():
+
+    user_id = request.args.get('user_id')
+    nb_activities = request.args.get('nb_activities')
+
+    res = db.user_data.find_one({'user_id': user_id}, {'strava.strava_id' : 1})
+
+    strava_id = res['strava']['strava_id']
+
+    res = db.activity_data.find(
+        { "$or" : [
+            { "user_id" : user_id },
+            { "strava_id" : strava_id }
+        ]}
+        ).sort('start_date_local', pymongo.DESCENDING).limit(int(nb_activities))
+
+    rv = []
+
+    for doc in res:
+            res = json.dumps({
+                    'activity_id': doc['activity_id'],
+                    'strava_id': doc['strava_id'],
+                    'title': doc['title'],
+                    'average_heartrate': doc['average_heartrate'],
+                    'start_date_local': doc['start_date_local'],
+                    'distance': doc['distance'],
+                    'moving_time': doc['moving_time'],
+                    'elapsed_time': doc['elapsed_time'],
+                    'type': doc['type']
+                })
+
+            rv.append(res)
+
+    return jsonify(rv)
+
+    
 
 @api_page.route('/api/training', methods=['POST'])
 def post_training():

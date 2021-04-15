@@ -70,19 +70,30 @@ def connect_athlete():
     strava_id = json_payload.get('strava_id')
     doc = db.strava_athlete_data.find_one({'strava_id': strava_id})
 
-    db.user_data.update(
-                {
-                    'user_id': user_id
-                }, 
-                {
-                    "$set":{
-                        'strava.strava_id': strava_id,
-                        'strava.firstname': doc['firstname'],
-                        'strava.lastname': doc['lastname']
+    try:
+        res = db.user_data.update(
+                    {
+                        'user_id': user_id
+                    }, 
+                    {
+                        "$set":{
+                            'strava.strava_id': strava_id,
+                            'strava.firstname': doc['firstname'],
+                            'strava.lastname': doc['lastname']
+                        }
                     }
-                }
-                )
+                    )
 
+        a = db.user_data.find_one({ "user_id" : {"$eq" : user_id } } )['_id']
+        b = db.user_data.find_one({ "strava.strava_id" : {"$eq" : strava_id } } )['_id']
+
+        if a == b:
+            return jsonify({ "message": "athlete_id and user_id connected"})
+
+        return jsonify({ "message": "athlete_id or user_id did not exist"})
+
+    except Exception as error:
+        return jsonify({ "error": "athlete_id or user_id did not exist"})
 
 # Send a parameter in JSON of the ID and get name as a return
 # Retrieves from local storage
@@ -97,35 +108,6 @@ def athlete():
             'firstname': doc['firstname'],
             'lastname': doc['lastname']
         })
-
-    except Exception as error:
-        print(error)
-        rv = None
-
-    return jsonify(rv)
-
-# Returns all activity data from athlete ID
-@strava_page.route("/strava/activities", methods=['GET'])
-def activities():
-
-    strava_id = request.args.get('strava_id')
-    rv = []
-    
-    try:
-        for doc in db.activity_data.find({'strava_id': strava_id}):
-            res = json.dumps({
-                    'activity_id': doc['activity_id'],
-                    'strava_id': doc['strava_id'],
-                    'title': doc['name'],
-                    'start_date': doc['start_date'],
-                    'start_date_local': doc['start_date_local'],
-                    'distance': doc['distance'],
-                    'moving_time': doc['moving_time'],
-                    'elapsed_time': doc['elapsed_time'],
-                    'type': doc['type']
-                })
-
-            rv.append(res)
 
     except Exception as error:
         print(error)

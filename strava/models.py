@@ -37,7 +37,7 @@ def refresh_token():
 def load_athlete(access_token):
     client = StravaIO(access_token)
     athlete = client.get_logged_in_athlete()
-    strava_id = athlete.api_response.id
+    strava_id = str(athlete.api_response.id)
     f_name = os.path.join(os.path.expanduser('~'), f'.stravadata/athlete_{strava_id}.json')
     
     if os.path.isfile(f_name):
@@ -92,7 +92,7 @@ def store_athlete_in_mongo(strava_id):
             data = json.load(f)
             res = db.strava_athlete_data.update_one(
                 {
-                    'strava_id': data['id']
+                    'strava_id': str(data['id'])
                 }, 
                 {
                     "$set":{
@@ -135,9 +135,9 @@ def store_activity_in_mongo(strava_id, activity_id):
                 }, 
                 {
                     "$set":{
-                        'strava_id': data['athlete']['id'],
-                        'start_date': data['start_date'],
+                        'strava_id': str(data['athlete']['id']),
                         'title': data['name'],
+                        'average_heartrate': 0,
                         'start_date_local': data['start_date_local'],
                         'distance': data['distance'],
                         'moving_time': data['moving_time'],
