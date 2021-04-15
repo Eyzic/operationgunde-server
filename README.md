@@ -27,3 +27,14 @@ The following is a quick guide on how to communicate with the database. Packages
 | DELETE | http://[hostname]/api/stats | {'user': Integer, 'date': String [YYYY-MM-DD]} | {error} or {messages} | Delete a stats document based on user and date |
 | GET | http://[hostname]/api/stats/hrv | {'user': Integer, 'date': String [YYYY-MM-DD]} | Integer | Get HRV data from user and date |
 | POST | http://[hostname]/api/training | {'user': Integer, 'activity_id': Integer, 'training_intensity': Integer, 'training_type': String, 'training_duration': Integer, 'energy_level': Integer} | {error} or {messages} | Post the training form (after training form) to database |
+
+## Connecting to the Strava API and retrieving data to MongoDB
+
+To access the Strava data the user first needs to call `http://[hostname]/strava/authorize` and authorize data collection. The authorization needs to take place at the local server since we're running on `port 5000`. Once the authorization is done, the server will initially store the data locally at `os.path.expanduser('~'), '.stravadata'` and then push the data to MongoDB.
+
+| HTTP Method | URI | Payload | Returns | Action | 
+| --- | --- | --- | --- | --- |
+| GET | http://[hostname]/strava/authorize | empty | {URL to strava authorization} | Authorize the server to get data from the Strava API |
+| GET | http://[hostname]/strava/athlete | {'athlete_id': Integer} | {'firstname', 'lastname'} | Gets athlete data from athlete_id |
+| GET | http://[hostname]/strava/activities | {'athlete_id': Integer} | [{'id', 'athlete', 'start_date', 'start_date_local', 'distance', 'moving_time', 'elapsed_time', 'type'}] | Returns a list of all activities from athlete_id |
+| GET | http://[hostname]/strava/athlete_all | empty | {'firstname', 'lastname', 'athlete_id'} | Returns all stored athletes in MongoDB |

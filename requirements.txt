@@ -5,3 +5,4 @@ dnspython==2.1.0
 flask_cors==3.0.10
 passlib==1.7.4
 DateTime==4.3
+stravaio==0.0.9
