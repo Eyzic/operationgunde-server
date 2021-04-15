@@ -2,6 +2,7 @@ from flask import Flask, Blueprint, render_template, session, redirect, jsonify,
 from database import db
 from bson.json_util import loads, dumps
 import requests
+import json
 
 api_page = Blueprint('api_page', __name__)
 
@@ -20,7 +21,7 @@ def post_stats():
     stats = {}
 
     for param in params:
-        stats[param] = json_payload.get(param)
+        stats[param] = json_payload[param]
 
     # Checks if 'user_id' and 'date' matches an existing document in the database
     if db.stats_data.find({ 'user_id': json_payload['user_id'], 'date': json_payload['date']}).count() > 0:
@@ -98,7 +99,7 @@ def post_training():
     training_data = {}
 
     for param in params:
-        training_data[param] = json_payload.get(param)
+        training_data[param] = json_payload[param]
 
     # Checks if 'user' and 'date' matches an existing document in the database
     if db.training_data.find({ "activity_id": json_payload['activity_id']}).count() > 0:

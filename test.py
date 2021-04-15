@@ -11,7 +11,7 @@ payload = {
         'date': str(datetime.date.today())
     }
 
-response = requests.get(BASE + "api/stats", params=payload)
+response = requests.get(BASE + "api/stats", json=payload)
 print(response.json())
 
 payload = {
@@ -20,7 +20,7 @@ payload = {
         'date': '2020-03-29'
     }
 
-response = requests.delete(BASE + "api/stats", params=payload)
+response = requests.delete(BASE + "api/stats", json=payload)
 print(response.json())
 
 payload = {
@@ -35,7 +35,7 @@ payload = {
         'energy_level': 5
     }
 
-response = requests.post(BASE + "api/stats", params=payload)
+response = requests.post(BASE + "api/stats", json=payload)
 print(response.json(), '\n')
 
 payload = {
@@ -43,5 +43,5 @@ payload = {
         'date': str(datetime.date.today())
     }
 
-response = requests.get(BASE + "api/stats/hrv", params=payload)
+response = requests.get(BASE + "api/stats/hrv", json=payload)
 print(response.json())
