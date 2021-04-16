@@ -12,7 +12,7 @@ def index():
     return {'Test':"Hello world!"}
 
 # Post the stats form (morning form) to database
-@api_page.route('/api/stats', methods=['POST'])
+@api_page.route('/api/form/stats', methods=['POST'])
 def post_stats():
     
     # Store parameters from the ge
@@ -37,7 +37,7 @@ def post_stats():
 
 
 # Get stats based on user_id and date
-@api_page.route('/api/stats', methods=['GET'])
+@api_page.route('/api/form/stats', methods=['GET'])
 def get_stats():
 
     user = request.args.get('user_id')
@@ -58,7 +58,7 @@ def get_stats():
 
 
 # Delete a stats based on user and date
-@api_page.route('/api/stats', methods=['DELETE'])
+@api_page.route('/api/form/stats', methods=['DELETE'])
 def delete_stats():
 
     user = request.args.get('user_id')
@@ -76,7 +76,7 @@ def delete_stats():
     return jsonify({ "error": "Failed" })
 
 # Get stats based on user and date
-@api_page.route('/api/stats/hrv', methods=['GET'])
+@api_page.route('/api/form/stats/hrv', methods=['GET'])
 def get_stats_hrv():
     
     user = request.args.get('user_id')
@@ -151,25 +151,54 @@ def get_activities():
 
     return jsonify(rv)
 
-    
 
-@api_page.route('/api/training', methods=['POST'])
-def post_training():
+# Get training form based on user_id and date
+@api_page.route('/api/form/training', methods=['GET'])
+def get_form_training():
+
+    user = request.args.get('user_id')
+    date = request.args.get('date')
+    
+    # Checks if 'user' and 'date' matches an existing document in the database
+    if db.training_form_data.find({"user_id": user, 'date': date}).count() == 0:
+          return jsonify({ "error": "can't find user_id and date in database" })
+
+    doc = db.training_form_data.find_one({ "user_id": user, 'date': date})
+    
+    params = {'user_id', 'date', 'training_intensity', 'training_type', 'elapsed_time', 'energy_level'}
+    stats = {}
+
+    for param in params:
+        stats[param] = doc[param]
+
+    return jsonify(stats)
+
+
+
+@api_page.route('/api/form/training', methods=['POST'])
+def post_form_training():
     
     json_payload = request.json
     
     params = {'user_id', 'date', 'training_intensity', 'training_type', 'elapsed_time', 'energy_level'}
-    training_data = {}
+    training_form_data = {}
 
     for param in params:
-        training_data[param] = json_payload[param]
+        training_form_data[param] = json_payload[param]
 
     # Checks if 'user' and 'date' matches an existing document in the database
-    if db.training_data.find({ "activity_id": json_payload['activity_id']}).count() > 0:
-          return jsonify({ "error": "training form already registered" })
+    res = db.training_form_data.find(
+        { "$and" : [
+            { "user_id" : json_payload['user_id'] },
+            { "date" : json_payload['date'] }
+        ]}
+        )
+
+    if res.count() > 0:
+        return jsonify({ "error": "training form already registered" })
     
     # Adds the form to the database
-    if db.training_data.insert(training_data):
+    if db.training_form_data.insert(training_form_data):
         return jsonify({ "message": "insert of training form successful"})
 
     # If unexpected error occurs, return error
