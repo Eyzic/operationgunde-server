@@ -91,13 +91,33 @@ def get_stats_hrv():
     return jsonify(doc['hrv'])
 
 
-#@api_page.route('/api/activity', methods=['GET'])
-#def get_activity():
+@api_page.route('/api/activity', methods=['POST'])
+def post_activity():
+
+    json_payload = request.json
+
+    params = {'user_id', 'activity_id', 'title', 'average_heartrate', 'start_date_local', 'distance', 'moving_time', 'elapsed_time', 'type'}
+    activity_data = {}
+
+    for param in params:
+
+        activity_data[param] = json_payload[param]
+
+    # Checks if 'user' and 'date' matches an existing document in the database
+    if db.activity_data.find({ "activity_id": json_payload['activity_id']}).count() > 0:
+          return jsonify({ "error": "activity already registered" })
+    
+    # Adds the form to the database
+    if db.activity_data.insert(activity_data):
+        return jsonify({ "message": "insert of activity successful"})
+
+    # If unexpected error occurs, return error
+    return jsonify({ "error": "Failed" })
 
 
 # Returns all activity data from athlete ID
 @api_page.route("/api/activities", methods=['GET'])
-def activities():
+def get_activities():
 
     user_id = request.args.get('user_id')
     nb_activities = request.args.get('nb_activities')
@@ -118,7 +138,6 @@ def activities():
     for doc in res:
             res = json.dumps({
                     'activity_id': doc['activity_id'],
-                    'strava_id': doc['strava_id'],
                     'title': doc['title'],
                     'average_heartrate': doc['average_heartrate'],
                     'start_date_local': doc['start_date_local'],
@@ -139,7 +158,7 @@ def post_training():
     
     json_payload = request.json
     
-    params = {'user_id', 'activity_id' 'training_intensity', 'training_type', 'training_duration', 'energy_level'}
+    params = {'user_id', 'date', 'training_intensity', 'training_type', 'elapsed_time', 'energy_level'}
     training_data = {}
 
     for param in params:
@@ -147,11 +166,11 @@ def post_training():
 
     # Checks if 'user' and 'date' matches an existing document in the database
     if db.training_data.find({ "activity_id": json_payload['activity_id']}).count() > 0:
-          return jsonify({ "error": "activity already registered" })
+          return jsonify({ "error": "training form already registered" })
     
     # Adds the form to the database
     if db.training_data.insert(training_data):
-        return jsonify({ "message": "insert of activity successful"})
+        return jsonify({ "message": "insert of training form successful"})
 
     # If unexpected error occurs, return error
     return jsonify({ "error": "Failed" })

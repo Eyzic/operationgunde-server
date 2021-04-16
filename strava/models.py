@@ -131,7 +131,7 @@ def store_activity_in_mongo(strava_id, activity_id):
             data = json.load(f)
             res = db.activity_data.update_one(
                 {
-                    'activity_id': data['id']
+                    'activity_id': str(data['id'])
                 }, 
                 {
                     "$set":{
