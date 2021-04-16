@@ -138,7 +138,7 @@ def store_activity_in_mongo(strava_id, activity_id):
                         'strava_id': str(data['athlete']['id']),
                         'title': data['name'],
                         'average_heartrate': 0,
-                        'start_date_local': data['start_date_local'],
+                        'start_date_local': data['start_date_local'][0:10],
                         'distance': data['distance'],
                         'moving_time': data['moving_time'],
                         'elapsed_time': data['elapsed_time'],

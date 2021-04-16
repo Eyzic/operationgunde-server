@@ -29,7 +29,7 @@ The following is a quick guide on how to communicate with the database. Packages
 | GET | http://[hostname]/api/form/training | {'user_id': String, 'date': String [YYYY-MM-DD]} | {'user_id', 'date', 'training_intensity', 'training_type', 'elapsed_time', 'energy_level'} | Get a training form from the database, based on user_id and date |
 | POST | http://[hostname]/api/form/training | {'user_id': String, 'date': String [YYYY-MM-DD], 'training_intensity': Integer, 'training_type': String, 'training_duration': Integer, 'energy_level': Integer} | {error} or {messages} | Post the training form (after training form) to database |
 | GET | http://[hostname]/api/activities | {'user_id': String, 'nb_activities': Integer} | [{'activity_id', 'title', 'average_heartrate', 'start_date_local', 'distance', 'moving_time', 'elapsed_time', 'type'}] | Returns a list of all stored activities from user_id |
-| POST | http://[hostname]/api/activity | {'user_id': String, 'activity_id': String, 'title': String, 'average_heartrate': Integer, 'start_date_local': String, 'distance': Integer, 'moving_time': Integer, 'elapsed_time': Integer, 'type': String} | {error} or {messages} | Post an activity to database |
+| POST | http://[hostname]/api/activity | {'user_id': String, 'activity_id': String, 'title': String, 'average_heartrate': Integer, 'start_date_local': String, 'distance': Integer, 'moving_time': Integer, 'elapsed_time': Integer, 'type': String} | {error} or {message} | Post an activity to database |
 | POST | http://[hostname]/api/group | {'user_id': String, 'group': String} | {message} | Adds a group to an user |
 | POST | http://[hostname]/api/organisation | {'user_id': String, 'organisation': String} | {message} | Adds an organisation to an user |
 
@@ -42,5 +42,6 @@ To access the Strava data the user first needs to call `http://[hostname]/strava
 | HTTP Method | URI | Payload | Returns | Action | 
 | --- | --- | --- | --- | --- |
 | GET | http://[hostname]/strava/authorize | empty | {URL to strava authorization} | Authorize the server to get data from the Strava API |
+| POST | http://[hostname]/strava/connect | {'user_id': String, 'strava_id': String} | {error} or {message} | Connect an user_id with a strava_id to be able to GET Strava activites |
 | GET | http://[hostname]/strava/athlete | {'strava_id': String} | {'firstname', 'lastname'} | Gets athlete data from strava_id |
 | GET | http://[hostname]/strava/athlete_all | empty | {'firstname', 'lastname', 'strava_id'} | Returns all stored athletes in MongoDB |
