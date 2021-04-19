@@ -139,7 +139,7 @@ def get_activities():
     rv = []
 
     for doc in res:
-            res = json.dumps({
+            res = {
                     'activity_id': doc['activity_id'],
                     'title': doc['title'],
                     'average_heartrate': doc['average_heartrate'],
@@ -148,7 +148,7 @@ def get_activities():
                     'moving_time': doc['moving_time'],
                     'elapsed_time': doc['elapsed_time'],
                     'type': doc['type']
-                })
+                }
 
             rv.append(res)
 
