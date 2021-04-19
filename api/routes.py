@@ -25,11 +25,11 @@ def post_stats():
         stats[param] = json_payload[param]
 
     # Checks if 'user_id' and 'date' matches an existing document in the database
-    if db.stats_data.find({ 'user_id': json_payload['user_id'], 'date': json_payload['date']}).count() > 0:
+    if db.stats_form_data.find({ 'user_id': json_payload['user_id'], 'date': json_payload['date']}).count() > 0:
         return jsonify({ "error": "user and date already registered" })
     
     # Adds the form to the database
-    if db.stats_data.insert(stats):
+    if db.stats_form_data.insert(stats):
         return jsonify({ "message": "insert of stats successful"})
 
     # If unexpected error occurs, return error
@@ -44,10 +44,10 @@ def get_stats():
     date = request.args.get('date')
     
     # Checks if 'user' and 'date' matches an existing document in the database
-    if db.stats_data.find({"user_id": user, 'date': date}).count() == 0:
+    if db.stats_form_data.find({"user_id": user, 'date': date}).count() == 0:
           return jsonify({ "error": "can't find user_id and date in database" })
 
-    doc = db.stats_data.find_one({ "user_id": user, 'date': date})
+    doc = db.stats_form_data.find_one({ "user_id": user, 'date': date})
     params = {'user_id', 'date', 'hrv', 'sleeping_hours', 'stress_level', 'muscle_ache', 'mood_level', 'injury_level', 'energy_level'}
     stats = {}
 
@@ -65,11 +65,11 @@ def delete_stats():
     date = request.args.get('date')
 
     # Checks if 'user' and 'date' matches an existing document in the database
-    if db.stats_data.find({"user_id": user, 'date': date}).count() == 0:
+    if db.stats_form_data.find({"user_id": user, 'date': date}).count() == 0:
           return jsonify({ "error": "can't find user and date in database" })
     
     # Adds the form to the database
-    if db.stats_data.delete_many({"user_id": user, 'date': date}).deleted_count > 0:
+    if db.stats_form_data.delete_many({"user_id": user, 'date': date}).deleted_count > 0:
         return jsonify({ "message": "delete of stats successful"})
 
     # If unexpected error occurs, return error
@@ -83,10 +83,10 @@ def get_stats_hrv():
     date = request.args.get('date')
     
     # Checks if 'user' and 'date' matches an existing document in the database
-    if db.stats_data.find({"user_id": user, 'date': date}).count() == 0:
+    if db.stats_form_data.find({"user_id": user, 'date': date}).count() == 0:
           return jsonify({ "error": "can't find user and date in database" })
 
-    doc = db.stats_data.find_one({ "user_id": user, 'date': date}, {'hrv': 1})
+    doc = db.stats_form_data.find_one({ "user_id": user, 'date': date}, {'hrv': 1})
 
     return jsonify(doc['hrv'])
 
