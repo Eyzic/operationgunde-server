@@ -124,7 +124,10 @@ def get_activities():
 
     res = db.user_data.find_one({'user_id': user_id}, {'strava.strava_id' : 1})
 
-    strava_id = res['strava']['strava_id']
+    try:
+        strava_id = res['strava']['strava_id']
+    except: 
+        strava_id = ""
 
     res = db.activity_data.find(
         { "$or" : [
