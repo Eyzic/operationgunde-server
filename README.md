@@ -42,7 +42,8 @@ To access the Strava data the user first needs to call `http://[hostname]/strava
 | HTTP Method | URI | Payload | Returns | Action | 
 | --- | --- | --- | --- | --- |
 | GET | http://[hostname]/strava/authorize | empty | {URL to strava authorization} | Authorize the server to get data from the Strava API |
-| POST | http://[hostname]/strava/connect | {'user_id': String, 'strava_id': String} | {'error'} or {'message'} | Connect an user_id with a strava_id to be able to GET Strava activites |
+| POST | http://[hostname]/strava/connect/name | {'user_id': String} | {'error'} or {'message'} | If FIRSTNAME and LASTNAME matches in both user['name'] and strava['name'], it automatically connects the two activity data |
+| POST | http://[hostname]/strava/connect/id | {'user_id': String, 'strava_id': String} | {'error'} or {'message'} | Manually connect an user_id with a strava_id to be able to GET Strava activites |
 | GET | http://[hostname]/strava/athlete | {'strava_id': String} | {'firstname', 'lastname'} | Gets athlete data from strava_id |
 | GET | http://[hostname]/strava/athlete_all | empty | {'firstname', 'lastname', 'strava_id'} | Returns all stored athletes in MongoDB |
 

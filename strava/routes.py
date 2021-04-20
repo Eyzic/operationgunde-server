@@ -61,8 +61,8 @@ def authorization_successful():
         return jsonify({ "error": "Failed to get access_token" })
     
 # Connects a user_id with a Strava strava_id
-@strava_page.route("/strava/connect", methods=['POST'])
-def connect_athlete():
+@strava_page.route("/strava/connect/id", methods=['POST'])
+def connect_athlete_by_id():
 
     json_payload = request.json
 
@@ -94,6 +94,53 @@ def connect_athlete():
 
     except Exception as error:
         return jsonify({ "error": "athlete_id or user_id did not exist"})
+
+# Connects a user_id with a Strava strava_id if FIRSTNAME and LASTNAME matches
+@strava_page.route("/strava/connect/name", methods=['POST'])
+def connect_athlete_by_name():
+
+    user_id = request.json.get('user_id')
+    doc = db.user_data.find_one({'user_id': user_id})
+    
+    try:
+        firstname, lastname = doc['name'].split()
+        
+        res = db.strava_athlete_data.find_one(
+            { "$and" : [
+                { "firstname" : firstname },
+                { "lastname" : lastname }
+            ]}
+            )
+        
+        strava_id = res['strava_id']
+
+        db.user_data.update(
+            {
+                'user_id': user_id
+            }, 
+            {
+                "$set":{
+                    'strava.strava_id': strava_id,
+                    'strava.firstname': res['firstname'],
+                    'strava.lastname': res['lastname']
+                }
+            }
+            )
+
+        a = db.user_data.find_one({ "user_id" : {"$eq" : user_id } } )['_id']
+        b = db.user_data.find_one({ "strava.strava_id" : {"$eq" : strava_id } } )['_id']
+
+        print(a)
+        print(b)
+
+        if a == b:
+            return jsonify({ "message": "user and Strava connected"})
+
+        return jsonify({ "error": "something went wrong"})
+
+    except Exception as error:
+        return jsonify({ "error": "user_id did not exist or name did not match FIRSTNAME LASTNAME"})
+
 
 # Send a parameter in JSON of the ID and get name as a return
 # Retrieves from local storage
