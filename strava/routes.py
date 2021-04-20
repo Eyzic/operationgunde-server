@@ -71,18 +71,18 @@ def connect_athlete():
     doc = db.strava_athlete_data.find_one({'strava_id': strava_id})
 
     try:
-        res = db.user_data.update(
-                    {
-                        'user_id': user_id
-                    }, 
-                    {
-                        "$set":{
-                            'strava.strava_id': strava_id,
-                            'strava.firstname': doc['firstname'],
-                            'strava.lastname': doc['lastname']
-                        }
-                    }
-                    )
+        db.user_data.update(
+            {
+                'user_id': user_id
+            }, 
+            {
+                "$set":{
+                    'strava.strava_id': strava_id,
+                    'strava.firstname': doc['firstname'],
+                    'strava.lastname': doc['lastname']
+                }
+            }
+            )
 
         a = db.user_data.find_one({ "user_id" : {"$eq" : user_id } } )['_id']
         b = db.user_data.find_one({ "strava.strava_id" : {"$eq" : strava_id } } )['_id']
@@ -104,10 +104,10 @@ def athlete():
     
     try:
         doc = db.strava_athlete_data.find_one({'strava_id': strava_id})
-        rv = json.dumps({
+        rv = {
             'firstname': doc['firstname'],
             'lastname': doc['lastname']
-        })
+        }
 
     except Exception as error:
         print(error)
@@ -123,11 +123,11 @@ def athlete_all():
     
     try:
         for doc in db.strava_athlete_data.find():
-            res = json.dumps({
+            res = {
                 'firstname': doc['firstname'],
                 'lastname': doc['lastname'],
                 'strava_id': doc['strava_id']
-            })
+            }
 
             rv.append(res)
 

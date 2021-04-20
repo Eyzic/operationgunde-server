@@ -22,16 +22,16 @@ The following is a quick guide on how to communicate with the database. Packages
 
 | HTTP Method | URI | Payload | Returns | Action | 
 | --- | --- | --- | --- | --- |
-| GET | http://[hostname]/api/form/stats | {'user_id': String, 'date': String [YYYY-MM-DD]} | {'user_id', 'date', 'hrv', 'sleeping_hours', 'stress_level', 'muscle_ache', 'mood_level', 'injury_level', 'energy_level'} or error | Get a stats document based on user_id and date |
-| POST | http://[hostname]/api/form/stats | {'user_id': String, 'date': String [YYYY-MM-DD], 'hrv': Integer, 'sleeping_hours': Integer, 'stress_level': Integer, 'muscle_ache': Integer, 'mood_level': Integer, 'injury_level' : Integer, 'energy_level': Integer} | {error} or {messages} | Post the stats form (HRV form) to database |
-| DELETE | http://[hostname]/api/form/stats | {'user_id': String, 'date': String [YYYY-MM-DD]} | {error} or {messages} | Delete a stats document based on user_id and date |
+| GET | http://[hostname]/api/form/stats | {'user_id': String, 'date': String [YYYY-MM-DD]} | {'user_id', 'date', 'hrv', 'sleeping_hours', 'stress_level', 'muscle_ache', 'mood_level', 'injury_level', 'energy_level'} or {'error'} | Get a stats document based on user_id and date |
+| POST | http://[hostname]/api/form/stats | {'user_id': String, 'date': String [YYYY-MM-DD], 'hrv': Integer, 'sleeping_hours': Integer, 'stress_level': Integer, 'muscle_ache': Integer, 'mood_level': Integer, 'injury_level' : Integer, 'energy_level': Integer} | {'error'} or {'message'} | Post the stats form (HRV form) to database |
+| DELETE | http://[hostname]/api/form/stats | {'user_id': String, 'date': String [YYYY-MM-DD]} | {'error'} or {'message'} | Delete a stats document based on user_id and date |
 | GET | http://[hostname]/api/form/stats/hrv | {'user_id': String, 'date': String [YYYY-MM-DD]} | Integer | Get HRV data from user_id and date |
 | GET | http://[hostname]/api/form/training | {'user_id': String, 'date': String [YYYY-MM-DD]} | {'user_id', 'date', 'training_intensity', 'training_type', 'elapsed_time', 'energy_level'} | Get a training form from the database, based on user_id and date |
-| POST | http://[hostname]/api/form/training | {'user_id': String, 'date': String [YYYY-MM-DD], 'training_intensity': Integer, 'training_type': String, 'training_duration': Integer, 'energy_level': Integer} | {error} or {messages} | Post the training form (after training form) to database |
+| POST | http://[hostname]/api/form/training | {'user_id': String, 'date': String [YYYY-MM-DD], 'training_intensity': Integer, 'training_type': String, 'training_duration': Integer, 'energy_level': Integer} | {'error'} or {'message'} | Post the training form (after training form) to database |
 | GET | http://[hostname]/api/activities | {'user_id': String, 'nb_activities': Integer} | [{'activity_id', 'title', 'average_heartrate', 'start_date_local', 'distance', 'moving_time', 'elapsed_time', 'type'}] | Returns a list of all stored activities from user_id |
-| POST | http://[hostname]/api/activity | {'user_id': String, 'activity_id': String, 'title': String, 'average_heartrate': Integer, 'start_date_local': String, 'distance': Integer, 'moving_time': Integer, 'elapsed_time': Integer, 'type': String} | {error} or {message} | Post an activity to database |
-| POST | http://[hostname]/api/group | {'user_id': String, 'group': String} | {message} | Adds a group to an user |
-| POST | http://[hostname]/api/organisation | {'user_id': String, 'organisation': String} | {message} | Adds an organisation to an user |
+| POST | http://[hostname]/api/activity | {'user_id': String, 'activity_id': String, 'title': String, 'average_heartrate': Integer, 'start_date_local': String, 'distance': Integer, 'moving_time': Integer, 'elapsed_time': Integer, 'type': String} | {'error'} or {'message'} | Post an activity to database |
+| POST | http://[hostname]/api/group | {'user_id': String, 'group': String} | {'message'} | Adds a group to an user |
+| POST | http://[hostname]/api/organisation | {'user_id': String, 'organisation': String} | {'message'} | Adds an organisation to an user |
 
 
 
@@ -42,6 +42,18 @@ To access the Strava data the user first needs to call `http://[hostname]/strava
 | HTTP Method | URI | Payload | Returns | Action | 
 | --- | --- | --- | --- | --- |
 | GET | http://[hostname]/strava/authorize | empty | {URL to strava authorization} | Authorize the server to get data from the Strava API |
-| POST | http://[hostname]/strava/connect | {'user_id': String, 'strava_id': String} | {error} or {message} | Connect an user_id with a strava_id to be able to GET Strava activites |
+| POST | http://[hostname]/strava/connect | {'user_id': String, 'strava_id': String} | {'error'} or {'message'} | Connect an user_id with a strava_id to be able to GET Strava activites |
 | GET | http://[hostname]/strava/athlete | {'strava_id': String} | {'firstname', 'lastname'} | Gets athlete data from strava_id |
 | GET | http://[hostname]/strava/athlete_all | empty | {'firstname', 'lastname', 'strava_id'} | Returns all stored athletes in MongoDB |
+
+## Using the log-in system and authentication
+
+Initially, users are authenticated by using their unique ID:s (e.g. '093715d842774acf896eb182c181a729'). This is received by using the /signup or /login call. If you want, you can call the /signout to generate a new random user-ID that's received when you log in again.
+
+By not using the /signout, you can keep the pre-set user-ID between different user calls.
+
+| HTTP Method | URI | Payload | Returns | Action | 
+| --- | --- | --- | --- | --- |
+| POST | http://[hostname]/signup | {'name': String, 'email': String, 'password': String} | {'user_id'} or {'error'} | Stores an user in the database with a hashed password and a random unique ID |
+| POST | http://[hostname]/login | {'email': String, 'password': String} | {'user_id'} or {'error'} | Compares 'email' and 'password' with existing users in the database |
+| POST | http://[hostname]/signout | {'user_id': String} | {'error'} or {'message'} | Sign out by changing the user_id in the database to a new random unique ID |
