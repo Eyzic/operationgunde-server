@@ -28,7 +28,8 @@ def signup():
         return jsonify({ "user_id" : user['user_id']})
 
     return jsonify({ "error" : "Signup failed" })
- 
+
+"""
 @user_page.route('/signout', methods=['POST'])
 def signout():
       
@@ -50,6 +51,7 @@ def signout():
         return jsonify({ "message" : "User successfully signed out" })
         
     return jsonify({ "error": "User doesn't exist" })
+"""
 
 @user_page.route('/login', methods=['POST'])
 def login():
