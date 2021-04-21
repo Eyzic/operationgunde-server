@@ -12,4 +12,4 @@ class individual_rnn:
         self.ind_rnn_model = ind_rnn_model
         self.input_dataset = input_dataset
         self.output_dataset = output_dataset
-        f
+        s
