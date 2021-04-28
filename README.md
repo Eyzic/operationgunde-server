@@ -20,6 +20,8 @@ Navigate to the folder in a terminal and type `python main.py` to start the API-
 
 The following is a quick guide on how to communicate with the database. Packages should be sent and received as JSON.
 
+#### API for forms
+
 | HTTP Method | URI | Payload | Returns | Action | 
 | --- | --- | --- | --- | --- |
 | GET | http://[hostname]/api/form/stats | {'user_id': String, 'date': String [YYYY-MM-DD]} | {'user_id', 'date', 'hrv', 'sleeping_hours', 'stress_level', 'muscle_ache', 'mood_level', 'injury_level', 'energy_level'} or {'error'} | Get a stats document based on user_id and date |
@@ -28,10 +30,24 @@ The following is a quick guide on how to communicate with the database. Packages
 | GET | http://[hostname]/api/form/stats/hrv | {'user_id': String, 'date': String [YYYY-MM-DD]} | Integer | Get HRV data from user_id and date |
 | GET | http://[hostname]/api/form/training | {'user_id': String, 'date': String [YYYY-MM-DD]} | {'user_id', 'date', 'training_intensity', 'training_type', 'elapsed_time', 'energy_level'} | Get a training form from the database, based on user_id and date |
 | POST | http://[hostname]/api/form/training | {'user_id': String, 'date': String [YYYY-MM-DD], 'training_intensity': Integer, 'training_type': String, 'training_duration': Integer, 'energy_level': Integer} | {'error'} or {'message'} | Post the training form (after training form) to database |
+
+
+#### API for activities
+
+| HTTP Method | URI | Payload | Returns | Action |
+| --- | --- | --- | --- | --- |
 | GET | http://[hostname]/api/activities | {'user_id': String, 'nb_activities': Integer} | [{'activity_id', 'title', 'average_heartrate', 'start_date_local', 'distance', 'moving_time', 'elapsed_time', 'type'}] | Returns a list of all stored activities from user_id |
-| POST | http://[hostname]/api/activity | {'user_id': String, 'activity_id': String, 'title': String, 'average_heartrate': Integer, 'start_date_local': String, 'distance': Integer, 'moving_time': Integer, 'elapsed_time': Integer, 'type': String} | {'error'} or {'message'} | Post an activity to database |
-| POST | http://[hostname]/api/group | {'user_id': String, 'group': String} | {'message'} | Adds a group to an user |
-| POST | http://[hostname]/api/organisation | {'user_id': String, 'organisation': String} | {'message'} | Adds an organisation to an user |
+| POST | http://[hostname]/api/activity | {'user_id': String, 'title': String, 'average_heartrate': Integer, 'start_date_local': String, 'distance': Integer, 'moving_time': Integer, 'elapsed_time': Integer, 'type': String} | {'error'} or {'message'} | Post an activity to database |
+#### API for groups and organisations
+
+| HTTP Method | URI | Payload | Returns | Action |
+| --- | --- | --- | --- | --- | 
+| POST | http://[hostname]/api/user/group | {'user_id': String, 'group': String} | {'message'} | Adds a group to an user |
+| GET | http://[hostname]/api/user/group | {'user_id': String} | [groups] or {'error'} | Get all the groups that an user is member of |
+| GET | http://[hostname]/api/group | {'group': String} | [{'user_id', 'name'}] or {'error'} | Get all the members of a specific group |
+| POST | http://[hostname]/api/user/organisation | {'user_id': String, 'organisation': String} | {'message'} | Adds an organisation to an user |
+| GET | http://[hostname]/api/user/organisation | {'user_id': String} | [organisations] or {'error'} | Get all the organisations that an user is member of |
+| GET | http://[hostname]/api/group | {'group': String} | [{'user_id', 'name'}] or {'error'} | Get all the members of a specific organisation |
 
 
 

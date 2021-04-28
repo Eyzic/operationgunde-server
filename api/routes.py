@@ -4,6 +4,8 @@ from bson.json_util import loads, dumps
 import requests
 import json
 import pymongo
+import string
+import random
 
 api_page = Blueprint('api_page', __name__)
 
@@ -96,16 +98,11 @@ def post_activity():
 
     json_payload = request.json
 
-    params = {'user_id', 'activity_id', 'title', 'average_heartrate', 'start_date_local', 'distance', 'moving_time', 'elapsed_time', 'type'}
-    activity_data = {}
+    params = {'user_id', 'title', 'average_heartrate', 'start_date_local', 'distance', 'moving_time', 'elapsed_time', 'type'}
+    activity_data = {'activity_id': ''.join(random.choices(string.ascii_uppercase + string.digits, k=20))}
 
     for param in params:
-
         activity_data[param] = json_payload[param]
-
-    # Checks if 'user' and 'date' matches an existing document in the database
-    if db.activity_data.find({ "activity_id": json_payload['activity_id']}).count() > 0:
-          return jsonify({ "error": "activity already registered" })
     
     # Adds the form to the database
     if db.activity_data.insert(activity_data):
@@ -120,7 +117,10 @@ def post_activity():
 def get_activities():
 
     user_id = request.args.get('user_id')
-    nb_activities = request.args.get('nb_activities')
+    nb_activities = request.args.get('nb_activities', type=int)
+
+    if db.user_data.find({"user_id": user_id}).count() == 0 or isinstance(nb_activities, int) == False or nb_activities < 0:
+        return jsonify({ "error": "Undefined query" }), 401
 
     res = db.user_data.find_one({'user_id': user_id}, {'strava.strava_id' : 1})
 
@@ -209,7 +209,7 @@ def post_form_training():
 
 
 # Add a group to an user
-@api_page.route("/api/group", methods=['POST'])
+@api_page.route("/api/user/group", methods=['POST'])
 def add_group():
 
     json_payload = request.json
@@ -232,9 +232,41 @@ def add_group():
         return jsonify({ "message": "group added successful"})
 
     return jsonify({ "message": "group not inserted"})
+    
+
+@api_page.route("/api/user/group", methods=['GET'])
+def get_group():
+    
+    user_id = request.args.get('user_id')
+    
+
+    try:
+        res = db.user_data.find_one({'user_id': user_id})
+        groups = res['groups']
+        return jsonify(groups)
+    except: 
+        return jsonify({ "error": "No groups for this user" })
+
+@api_page.route("/api/group", methods=['GET'])
+def get_group_members():
+
+    group = request.args.get('group')
+    res = db.user_data.find({'groups': group})
+
+    if res.count() == 0:
+        return jsonify({ "error": "No members in this group"}), 400
+
+    rv = []
+
+    for doc in res:
+        res = {'user_id': doc['user_id'], 'name': doc['name']}
+        rv.append(res)
+    
+    return jsonify(rv)
+
 
 # Add an organisation to an user
-@api_page.route("/api/organisation", methods=['POST'])
+@api_page.route("/api/user/organisation", methods=['POST'])
 def add_organisation():
 
     json_payload = request.json
@@ -257,3 +289,33 @@ def add_organisation():
         return jsonify({ "message": "organisation added successful"})
 
     return jsonify({ "message": "organisation already exists"})
+
+@api_page.route("/api/user/organisation", methods=['GET'])
+def get_organisation():
+    
+    user_id = request.args.get('user_id')
+
+    try:
+        res = db.user_data.find_one({'user_id': user_id})
+        organisations = res['organisation']
+        return jsonify(organisations)
+    except: 
+        return jsonify({ "error": "No organisations for this user" })
+
+
+@api_page.route("/api/organisation", methods=['GET'])
+def get_organisation_members():
+
+    organisation = request.args.get('organisation')
+    res = db.user_data.find({'organisations': organisation})
+
+    if res.count() == 0:
+        return jsonify({ "error": "No members in this organisation" }), 400
+
+    rv = []
+
+    for doc in res:
+        res = {'user_id': doc['user_id'], 'name': doc['name']}
+        rv.append(res)
+    
+    return jsonify(rv)

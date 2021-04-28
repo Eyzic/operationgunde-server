@@ -63,4 +63,4 @@ def login():
     if user and pbkdf2_sha256.verify(request.json['password'], user['password']):
             return jsonify({ "user_id" : user['user_id']})
         
-    return jsonify({ "error": "Invalid login credentials" })
+    return jsonify({ "error": "Invalid login credentials" }), 401
