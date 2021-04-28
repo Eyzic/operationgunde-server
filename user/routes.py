@@ -13,7 +13,7 @@ def signup():
     user = {
         'user_id': uuid.uuid4().hex,
         'name': request.json['name'],
-        'email': request.json['email'],
+        'email': request.json['email'].lower(),
         'password': request.json['password']
     }
 
@@ -55,9 +55,9 @@ def signout():
 
 @user_page.route('/login', methods=['POST'])
 def login():
-      
+
     user = db.user_data.find_one({
-            "email": request.json['email']
+            "email": request.json['email'].lower()
         })
 
     if user and pbkdf2_sha256.verify(request.json['password'], user['password']):
