@@ -41,13 +41,16 @@ The following is a quick guide on how to communicate with the database. Packages
 #### API for groups and organisations
 
 | HTTP Method | URI | Payload | Returns | Action |
-| --- | --- | --- | --- | --- | 
-| POST | http://[hostname]/api/user/group | {'user_id': String, 'group': String} | {'message'} | Adds a group to an user |
-| GET | http://[hostname]/api/user/group | {'user_id': String} | [groups] or {'error'} | Get all the groups that an user is member of |
-| GET | http://[hostname]/api/group | {'group': String} | [{'user_id', 'name'}] or {'error'} | Get all the members of a specific group |
-| POST | http://[hostname]/api/user/organisation | {'user_id': String, 'organisation': String} | {'message'} | Adds an organisation to an user |
+| --- | --- | --- | --- | --- |
+| POST | http://[hostname]/api/group | {'group': String, 'logo':String[cat/dog/lion/fox/owl]} | {'message'} or {'error'} | Create a group with a group logo |
+| GET | http://[hostname]/api/group | {'group': String} | [{'name'}] or {'error'} | Get all the members of a specific group |
+| POST | http://[hostname]/api/user/group | {'user_id': String, 'group': String} | {'message'} | Adds an user to a group |
+| GET | http://[hostname]/api/user/group | {'user_id': String} | [{'group', 'nb_members', 'logo'}] or {'error'} | Get all the groups that an user is member of |
+| GET | http://[hostname]/api/group/png | {'logo': String[cat/dog/lion/fox/owl]} | logo.png | Get a group logo in PNG format |
+
+<!-- | POST | http://[hostname]/api/user/organisation | {'user_id': String, 'organisation': String} | {'message'} | Adds an organisation to an user |
 | GET | http://[hostname]/api/user/organisation | {'user_id': String} | [organisations] or {'error'} | Get all the organisations that an user is member of |
-| GET | http://[hostname]/api/group | {'group': String} | [{'user_id', 'name'}] or {'error'} | Get all the members of a specific organisation |
+| GET | http://[hostname]/api/organisation | {'organisation': String} | [{'user_id', 'name'}] or {'error'} | Get all the members of a specific organisation | -->
 
 
 

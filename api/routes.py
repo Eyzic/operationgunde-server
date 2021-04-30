@@ -1,4 +1,4 @@
-from flask import Flask, Blueprint, render_template, session, redirect, jsonify, request
+from flask import Flask, Blueprint, render_template, session, redirect, jsonify, request, send_file
 from database import db
 from bson.json_util import loads, dumps
 import requests
@@ -207,65 +207,93 @@ def post_form_training():
     # If unexpected error occurs, return error
     return jsonify({ "error": "Failed" })
 
+# Create a group
+@api_page.route("/api/group", methods=['POST'])
+def create_group():
+
+    logo = request.json.get('logo')
+    group = request.json.get('group')
+   
+    res = db.groups.update(
+                {
+                    'group': group
+                }, 
+                {
+                    '$set':{'logo': logo}
+                },
+                upsert=True
+                )
+    if res['nModified'] > 0:
+        return jsonify({ "message": "group added successful"})
+
+    return jsonify({ "message": "group not inserted"})
+
 
 # Add a group to an user
 @api_page.route("/api/user/group", methods=['POST'])
 def add_group():
 
-    json_payload = request.json
+    user_id = request.json.get('user_id')
+    group = request.json.get('group')
 
-    user_id = json_payload.get('user_id')
-    group = json_payload.get('group')
+    res = db.groups.update_one({'group' : group}, {'$addToSet':{'members': user_id}}, upsert = True)
     
-    res = db.user_data.update(
-                {
-                    'user_id': user_id
-                }, 
-                {
-                    '$addToSet':{
-                        'groups': group
-                    }
-                }
-                )
+    return jsonify({ "message": "user added successful"})
 
-    if res['nModified'] > 0:
-        return jsonify({ "message": "group added successful"})
 
-    return jsonify({ "message": "group not inserted"})
-    
-
+# Get an users group and number of members
 @api_page.route("/api/user/group", methods=['GET'])
 def get_group():
     
     user_id = request.args.get('user_id')
     
-
     try:
-        res = db.user_data.find_one({'user_id': user_id})
-        groups = res['groups']
-        return jsonify(groups)
-    except: 
-        return jsonify({ "error": "No groups for this user" })
+        res = db.groups.find({'members': user_id})
+        rv = []
+        for doc in res:
 
+            try:
+                logo = doc['logo']
+            except:
+                logo = None
+
+            nb_members = len(doc['members'])
+            rv.append([doc['group'], nb_members, logo])
+
+        return jsonify(rv)
+
+    except: 
+        return jsonify({ "error": "Input doesn't match with item in database" })
+
+# Get users in a specific group
 @api_page.route("/api/group", methods=['GET'])
 def get_group_members():
 
     group = request.args.get('group')
-    res = db.user_data.find({'groups': group})
 
-    if res.count() == 0:
-        return jsonify({ "error": "No members in this group"}), 400
+    try:
+        res = db.groups.find_one({'group': group})
+        ids = res['members']
 
-    rv = []
+        rv = []
 
-    for doc in res:
-        res = {'user_id': doc['user_id'], 'name': doc['name']}
-        rv.append(res)
-    
-    return jsonify(rv)
+        for id in ids:
+            try:
+                name = db.user_data.find_one({'user_id': id})
+                print(name['name'])
+                rv.append(name['name'])
+            except:
+                pass
+
+        return jsonify(rv)
+
+    except: 
+        return jsonify({ "error": "No members of this group" })
 
 
-# Add an organisation to an user
+
+
+"""# Add an organisation to an user
 @api_page.route("/api/user/organisation", methods=['POST'])
 def add_organisation():
 
@@ -273,7 +301,7 @@ def add_organisation():
     
     user_id = json_payload.get('user_id')
     organisation = json_payload.get('organisation')
-    
+
     res = db.user_data.update(
                 {
                     'user_id': user_id
@@ -318,4 +346,12 @@ def get_organisation_members():
         res = {'user_id': doc['user_id'], 'name': doc['name']}
         rv.append(res)
     
-    return jsonify(rv)
+    return jsonify(rv)"""
+
+@api_page.route('/get_png', methods=['GET'])
+def get_png():
+
+    logo = request.args.get('logo')
+
+    filename = 'logos/' + logo + '.png'
+    return send_file(filename, mimetype='image/png')
