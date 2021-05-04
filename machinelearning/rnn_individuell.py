@@ -12,15 +12,8 @@ from keras.models import load_model
 
 import math
 
-# Load  individual models
-model = load_model('path')
-dataset = [] # Current data set compatible
-X = []
-Y = []
-# train models
-model.fit(X,Y,batch_size=1,epochs=20)
-
-# Save trained models
-keras.models.save_model('path') #
-
-# Model
+def train_general_model(model,X_train,Y_train):
+    model.fit(X_train,Y_train,epochs = 100,batch_size=1)
+    return model
+def predict_hrv_by_general_RNN_model (general_model,X):
+    return general_model.predict(X)

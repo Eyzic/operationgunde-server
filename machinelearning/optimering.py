@@ -9,23 +9,17 @@ from sklearn import preprocessing
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
 
-# Load model general and individual
-ind_model = keras.models.load_model('filepath')
-general_model =  keras.models.load_model('filepath')
+def optimize_training_by_RNN (person):
+    X = []
+    last_day = []
+    optimized_TL=[]
+    for i in range(6):
+        X.append(Data_preprocessing.make_datasets_for_RNN(person,6,last_day, last_day,hrv_dataframe,training_dataframe)[i])#before updating HRV last day
+    # Last row is the updated |for exampel that day the person updated his/her values like [10,2,6,9,NaN] where NaN is training load
+    # put different training load in the frame and append X X.append(frame)
+    # predict next days HRV for every alternative X data set
+    return optimized_TL
 
-
-# load the data set and make  data sets compatible to the RNN
-
-# Make a list of all possible data sets for intensity  1-10
-list_datasets = []
-current_predicted_HRV = 0
-optimized_intensity=0
-for dataset in list:
-    #Predict HRV
-    predicted_HRV = ind_model.predict(dataset)
-    if predicted_HRV > current_predicted_HRV:
-        current_predicted_HRV =predicted_HRV
-        optimized_intensity = [] # Intensity used for the dataset
 
 
 
