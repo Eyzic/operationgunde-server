@@ -23,5 +23,4 @@ model.fit(X,Y,batch_size=1,epochs=20)
 # Save trained models
 keras.models.save_model('path') #
 
-
-
+# Model
