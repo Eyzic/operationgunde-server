@@ -2,10 +2,10 @@ import pandas as pd
 import numpy as np
 import datetime
 
-def make_dataset_for_RNN(person,days_sequence ,start_day,end_day,hrv_dataframe,training_dataframe):
+def make_dataset_for_RNN(name,days_sequence ,start_day,end_day,hrv_excel_path,training_excel_path):
   # Load HRV Och Träningsdata
-  hrv = hrv_dataframe
-  training = training_dataframe
+  hrv = pd.read_csv(hrv_excel_path)
+  training = pd.read_csv(training_excel_path)
   # Make class for frames
   class frame_class:
     def __init__(self,date, name, sleep, stress,muscle_pain, humor , injuries,energi_level,training_load,RMSSD,SDNN,HRV_value):
@@ -195,8 +195,8 @@ def make_dataset_for_RNN(person,days_sequence ,start_day,end_day,hrv_dataframe,t
 
 
   d_ind= pd.DataFrame(columns=Columns)
-  name__ = person.name[0:2].lower  # Detta ska returnera 2 första bokstäver personens namn (små bokstäver)
-  for x in range(d.shape[0]):
+  name__ = name[0:2].lower  # Detta ska returnera 2 första bokstäver personens namn (små bokstäver)
+  for x in range(d.shape[0]): # fi
 
       if d['name'][x] == name__:
           d_ind = d_ind.append(pd.DataFrame(d.iloc[[x]], columns=Columns), ignore_index=True)
@@ -205,7 +205,7 @@ def make_dataset_for_RNN(person,days_sequence ,start_day,end_day,hrv_dataframe,t
 
   # Make dataset compatible for RNN
 
-  percentage_of_training_examples = 0.8
+
   list_dataframes = [d_ind]
 
   X_train = []
@@ -222,3 +222,4 @@ def make_dataset_for_RNN(person,days_sequence ,start_day,end_day,hrv_dataframe,t
   X_train = np.array(X_train)
   Y_train = np.array(Y_train)
   return X_train,Y_train
+make_dataset_for_RNN('Filip',7,28,29,'HRV.csv','training.csv')
