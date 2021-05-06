@@ -195,6 +195,7 @@ def make_dataset_for_NN(name__,days_sequence ,start_day,end_day,hrv_excel_path,t
 
   d_ind= pd.DataFrame(columns=Columns)
    # Detta ska returnera 2 första bokstäver personens namn (små bokstäver)
+  name__ = person[0:2].lower()
   for x in range(d.shape[0]): # fi
 
       if d['name'][x] == name__:
@@ -428,4 +429,4 @@ def last_day_index (person,hrv_excel_path,training_excel_path):
   return d_ind.shape[0]
 
 
-print(last_day_index('einar','HRV.csv','training.csv'))
+print(last_day_index('jess','HRV.csv','training.csv'))
