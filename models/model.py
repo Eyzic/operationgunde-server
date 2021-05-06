@@ -2,7 +2,6 @@ import math
 import random
 import numpy as np
 import pandas as pd
-from data_preprocessing import newHRV, newTL, TLdata, HRVdata, scale_array, newRMSSD
 from scipy.optimize import minimize
 from sklearn.neural_network import MLPRegressor
 import matplotlib.pyplot as plt
@@ -12,6 +11,7 @@ from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn import preprocessing
 from sklearn.metrics import r2_score
 
+from thomas_preprocessing import newHRV, newTL, TLdata, HRVdata, scale_array, newRMSSD
 
 def removezeros(tlarr, hrvarr):
     for x in range(len(tlarr)):

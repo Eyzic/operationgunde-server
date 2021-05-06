@@ -3,13 +3,12 @@ import numpy as np
 from sklearn.datasets import make_regression
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
-from data_preprocessing import newHRV, newTL, TLdata, HRVdata, scale_array, newRMSSD, nameWorkout, data, intensity, duration
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.metrics import mean_squared_error
 from sklearn.metrics import r2_score
 import pandas as pd
 
-
+from thomas_preprocessing import newHRV, newTL, TLdata, HRVdata, scale_array, newRMSSD, nameWorkout, data, intensity, duration
 
 def dropna(HRV, TL):
     df = pd.concat([HRV, TL], axis=1)
