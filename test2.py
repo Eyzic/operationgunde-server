@@ -10,10 +10,10 @@ from strava.models import *
 BASE = "http://127.0.0.1:5000/"
 
 payload = {
-        'id': 74474598
+        'group': 'Löparna'
     }
 
-response = requests.get(BASE + "strava/authorize", params=payload)
+response = requests.get(BASE + "api/group", params=payload)
 #response1 = requests.get(BASE + "strava/activities", params=payload)
 #response2 = requests.get(BASE + "strava/athlete_all", params=payload)
 #response3 = requests.get(BASE + "strava/athlete_all2", params=payload)
