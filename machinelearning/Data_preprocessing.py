@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import datetime
 from sklearn.preprocessing import MinMaxScaler
+
 def make_dataset_for_NN(name__,days_sequence ,start_day,end_day,hrv_excel_path,training_excel_path,X_columns,Y_columns):
   # Load HRV Och Träningsdata
   hrv = pd.read_csv(hrv_excel_path)
@@ -224,14 +225,6 @@ def make_dataset_for_NN(name__,days_sequence ,start_day,end_day,hrv_excel_path,t
 
 
 
-
-
-
-
-
-
-
-
 def last_day_index (person,hrv_excel_path,training_excel_path):
   # Load HRV Och Träningsdata
   hrv = pd.read_csv(hrv_excel_path)
@@ -425,11 +418,14 @@ def last_day_index (person,hrv_excel_path,training_excel_path):
   # Making individual dataframes
 
   d_ind = pd.DataFrame(columns=Columns)
+  name__ = person[0:2].lower()
   # Detta ska returnera 2 första bokstäver personens namn (små bokstäver)
-  for x in range(d.shape[0]):  # fi
-
+  for x in range(d.shape[0]):  
     if d['name'][x] == name__:
       d_ind = d_ind.append(pd.DataFrame(d.iloc[[x]], columns=Columns), ignore_index=True)
 
 
   return d_ind.shape[0]
+
+
+print(last_day_index('einar','HRV.csv','training.csv'))
