@@ -5,11 +5,13 @@ from flask_cors import CORS
 from user.routes import *
 from api.routes import *
 from strava.routes import *
+#from machinelearning.routes import *
 
 app = Flask(__name__)
 app.register_blueprint(user_page)
 app.register_blueprint(api_page)
 app.register_blueprint(strava_page)
+#app.register_blueprint(ml_page)
 api = Api(app)
 CORS(app)
 
@@ -28,6 +30,3 @@ def data():
 if __name__ == "__main__":
     app.secret_key = 'secretkey'
     app.run()
-
-
-
