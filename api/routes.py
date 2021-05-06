@@ -1,13 +1,16 @@
 from flask import Flask, Blueprint, render_template, session, redirect, jsonify, request
-from database import db
+#from database import db
 from bson.json_util import loads, dumps
 import json
+import pandas as pd
 
 api_page = Blueprint('api_page', __name__)
 
 @api_page.route('/index')
 def index():
     return {'Test':"Hello world!"}
+
+
 
 # Post the stats form (morning form) to database
 @api_page.route('/api/stats', methods=['POST'])
