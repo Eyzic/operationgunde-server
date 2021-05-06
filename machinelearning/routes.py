@@ -8,7 +8,7 @@ import datetime
 
 ml_page = Blueprint('ml_page', __name__)
 
-# Get HRV vakue from model [X]
+# Get HRV value from model [X]
 @ml_page.route('/ml/predict', methods=['GET'])
 def get_hrv():
 
