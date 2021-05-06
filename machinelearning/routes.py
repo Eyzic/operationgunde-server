@@ -12,9 +12,6 @@ ml_page = Blueprint('ml_page', __name__)
 @ml_page.route('/ml/predict', methods=['GET'])
 def get_hrv():
 
-    
-
-
 
 @ml_page.route('/ml/last', methods=['GET'])
 def get_last_7_days():
