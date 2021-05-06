@@ -43,7 +43,7 @@ The following is a quick guide on how to communicate with the database. Packages
 | HTTP Method | URI | Payload | Returns | Action |
 | --- | --- | --- | --- | --- |
 | POST | http://[hostname]/api/group | {'group': String, 'logo':String[cat/dog/lion/fox/owl]} | {'message'} or {'error'} | Create a group with a group logo |
-| GET | http://[hostname]/api/group | {'group': String} | [{'name'}] or {'error'} | Get all the members of a specific group |
+| GET | http://[hostname]/api/group | {'group': String} | [{'name', 'user_id'}] or {'error'} | Get all the members (both names and user_id) of a specific group |
 | POST | http://[hostname]/api/user/group | {'user_id': String, 'group': String} | {'message'} | Adds an user to a group |
 | GET | http://[hostname]/api/user/group | {'user_id': String} | [{'group', 'nb_members', 'logo'}] or {'error'} | Get all the groups that an user is member of |
 | GET | http://[hostname]/api/group/png | {'logo': String[cat/dog/lion/fox/owl]} | logo.png | Get a group logo in PNG format |

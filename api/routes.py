@@ -280,8 +280,7 @@ def get_group_members():
         for id in ids:
             try:
                 name = db.user_data.find_one({'user_id': id})
-                print(name['name'])
-                rv.append(name['name'])
+                rv.append([name['name'], id])
             except:
                 pass
 
