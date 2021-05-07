@@ -53,7 +53,11 @@ The following is a quick guide on how to communicate with the database. Packages
 | GET | http://[hostname]/api/user/organisation | {'user_id': String} | [organisations] or {'error'} | Get all the organisations that an user is member of |
 | GET | http://[hostname]/api/organisation | {'organisation': String} | [{'user_id', 'name'}] or {'error'} | Get all the members of a specific organisation | -->
 
+#### API for predicted HRV
 
+| HTTP Method | URI | Payload | Returns | Action |
+| --- | --- | --- | --- | --- |
+| GET | http://[hostname]/ml/neural | {'user_id': String} | {'predicted_hrv': String} | Returns predicted HRV for the next day, based on a Neural Machine Learning model |
 
 ## Connecting to the Strava API and retrieving data to MongoDB
 
