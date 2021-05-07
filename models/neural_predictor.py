@@ -8,7 +8,7 @@ from sklearn.metrics import mean_squared_error
 from sklearn.metrics import r2_score
 import pandas as pd
 
-from thomas_preprocessing import newHRV, newTL, TLdata, HRVdata, scale_array, newRMSSD, nameWorkout, data, intensity, duration
+from models.thomas_preprocessing import newHRV, newTL, TLdata, HRVdata, scale_array, newRMSSD, nameWorkout, data, intensity, duration
 
 def dropna(HRV, TL):
     df = pd.concat([HRV, TL], axis=1)
@@ -18,6 +18,8 @@ def dropna(HRV, TL):
 
 
 def HRV_tomorrow(Name):
+    print(Name)
+    print(nameWorkout)
     x = len(nameWorkout)-1
     while nameWorkout[x] != Name:
         x -= 1
@@ -47,9 +49,6 @@ def runmodel(HRVarr, TLarr, TLpredict):
     regr = MLPRegressor(solver="lbfgs", activation="tanh", random_state=50, hidden_layer_sizes=[100], max_iter=2000).fit(X, y)
     X_test = scaler.transform(TLpredict)
     return regr.predict(X_test)
-
-
-print(HRV_tomorrow('Filip Helmroth'))
 
 #allTL = np.array(newTL[1]) #+ newTL[1] + newTL[2] + newTL[3] + newTL[4])
 #allHRV = np.array(newHRV[5]) #+ newHRV[1] + newHRV[2] + newHRV[3] + newHRV[4])

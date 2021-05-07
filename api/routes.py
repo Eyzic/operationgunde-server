@@ -7,6 +7,8 @@ import pymongo
 import string
 import random
 
+from models.models import add_to_hrv_xlsx, add_to_training_xlsx
+
 api_page = Blueprint('api_page', __name__)
 
 @api_page.route('/index')
@@ -26,12 +28,14 @@ def post_stats():
     for param in params:
         stats[param] = json_payload[param]
 
+
     # Checks if 'user_id' and 'date' matches an existing document in the database
     if db.stats_form_data.find({ 'user_id': json_payload['user_id'], 'date': json_payload['date']}).count() > 0:
         return jsonify({ "error": "user and date already registered" })
     
     # Adds the form to the database
     if db.stats_form_data.insert(stats):
+        add_to_xlsx(stats)
         return jsonify({ "message": "insert of stats successful"})
 
     # If unexpected error occurs, return error
@@ -88,10 +92,33 @@ def get_stats_hrv():
     if db.stats_form_data.find({"user_id": user, 'date': date}).count() == 0:
           return jsonify({ "error": "can't find user and date in database" })
 
-    doc = db.stats_form_data.find_one({ "user_id": user, 'date': date}, {'hrv': 1})
+    doc = db.stats_form_data.find_one({"user_id": user, 'date': date}, {'hrv': 1})
 
     return jsonify(doc['hrv'])
 
+# Get stats based on user and date
+@api_page.route('/api/form/stats/all/hrv', methods=['GET'])
+def get_stats_all_hrv():
+    
+    user = request.args.get('user_id')
+    
+    docs = db.stats_form_data.find({"user_id": user})
+
+    # Checks if 'user' and 'date' matches an existing document in the database
+    if docs.count() == 0:
+          return jsonify({ "error": "can't find user in database" })
+
+    rv = []
+
+    for doc in docs:
+        res = {
+                'hrv': doc['hrv'],
+                'date': doc['date']
+                }
+
+        rv.append(res)
+
+    return jsonify(rv)
 
 @api_page.route('/api/activity', methods=['POST'])
 def post_activity():
@@ -117,10 +144,9 @@ def post_activity():
 def get_activities():
 
     user_id = request.args.get('user_id')
-    nb_activities = request.args.get('nb_activities', type=int)
 
-    if db.user_data.find({"user_id": user_id}).count() == 0 or isinstance(nb_activities, int) == False or nb_activities < 0:
-        return jsonify({ "error": "Undefined query" }), 401
+    if db.user_data.find({"user_id": user_id}).count() == 0:
+        return jsonify({ "error": "Undefined query" })
 
     res = db.user_data.find_one({'user_id': user_id}, {'strava.strava_id' : 1})
 
@@ -134,7 +160,7 @@ def get_activities():
             { "user_id" : user_id },
             { "strava_id" : strava_id }
         ]}
-        ).sort('start_date_local', pymongo.DESCENDING).limit(int(nb_activities))
+        ).sort('start_date_local', pymongo.DESCENDING)
 
     rv = []
 
@@ -199,9 +225,10 @@ def post_form_training():
 
     if res.count() > 0:
         return jsonify({ "error": "training form already registered" })
-    
+
     # Adds the form to the database
     if db.training_form_data.insert(training_form_data):
+        add_to_training_xlsx(training_form_data)
         return jsonify({ "message": "insert of training form successful"})
 
     # If unexpected error occurs, return error
@@ -280,7 +307,7 @@ def get_group_members():
         for id in ids:
             try:
                 name = db.user_data.find_one({'user_id': id})
-                rv.append([name['name'], id])
+                rv.append({'name' : name['name'], 'user_id' : id})
             except:
                 pass
 

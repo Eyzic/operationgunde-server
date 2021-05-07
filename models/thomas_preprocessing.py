@@ -147,8 +147,8 @@ ChristerRMSSD = []
 JessicaRMSSD = []
 FilipRMSSD = []
 
-hrv = pd.read_excel('hrv.xlsx')
-workout = pd.read_excel("training.xlsx")
+hrv = pd.read_excel('models/hrv.xlsx')
+workout = pd.read_excel("models/training.xlsx")
 
 training_Day = workout['Träningsdagen']
 dateHRV = hrv['Tidstämpel']

@@ -28,6 +28,7 @@ The following is a quick guide on how to communicate with the database. Packages
 | POST | http://[hostname]/api/form/stats | {'user_id': String, 'date': String [YYYY-MM-DD], 'hrv': Integer, 'sleeping_hours': Integer, 'stress_level': Integer, 'muscle_ache': Integer, 'mood_level': Integer, 'injury_level' : Integer, 'energy_level': Integer} | {'error'} or {'message'} | Post the stats form (HRV form) to database |
 | DELETE | http://[hostname]/api/form/stats | {'user_id': String, 'date': String [YYYY-MM-DD]} | {'error'} or {'message'} | Delete a stats document based on user_id and date |
 | GET | http://[hostname]/api/form/stats/hrv | {'user_id': String, 'date': String [YYYY-MM-DD]} | Integer | Get HRV data from user_id and date |
+| GET | http://[hostname]/api/form/stats/all/hrv | {'user_id': String} | Integer | Get all HRV data together with date from user_id |
 | GET | http://[hostname]/api/form/training | {'user_id': String, 'date': String [YYYY-MM-DD]} | {'user_id', 'date', 'training_intensity', 'training_type', 'elapsed_time', 'energy_level'} | Get a training form from the database, based on user_id and date |
 | POST | http://[hostname]/api/form/training | {'user_id': String, 'date': String [YYYY-MM-DD], 'training_intensity': Integer, 'training_type': String, 'training_duration': Integer, 'energy_level': Integer} | {'error'} or {'message'} | Post the training form (after training form) to database |
 
@@ -36,7 +37,7 @@ The following is a quick guide on how to communicate with the database. Packages
 
 | HTTP Method | URI | Payload | Returns | Action |
 | --- | --- | --- | --- | --- |
-| GET | http://[hostname]/api/activities | {'user_id': String, 'nb_activities': Integer} | [{'activity_id', 'title', 'average_heartrate', 'start_date_local', 'distance', 'moving_time', 'elapsed_time', 'type'}] | Returns a list of all stored activities from user_id |
+| GET | http://[hostname]/api/activities | {'user_id': String} | [{'activity_id', 'title', 'average_heartrate', 'start_date_local', 'distance', 'moving_time', 'elapsed_time', 'type'}] | Returns a list of all stored activities from user_id |
 | POST | http://[hostname]/api/activity | {'user_id': String, 'title': String, 'average_heartrate': Integer, 'start_date_local': String, 'distance': Integer, 'moving_time': Integer, 'elapsed_time': Integer, 'type': String} | {'error'} or {'message'} | Post an activity to database |
 #### API for groups and organisations
 

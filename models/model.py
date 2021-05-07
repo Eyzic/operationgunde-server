@@ -11,7 +11,7 @@ from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn import preprocessing
 from sklearn.metrics import r2_score
 
-from thomas_preprocessing import newHRV, newTL, TLdata, HRVdata, scale_array, newRMSSD
+from models.thomas_preprocessing import newHRV, newTL, TLdata, HRVdata, scale_array, newRMSSD
 
 def removezeros(tlarr, hrvarr):
     for x in range(len(tlarr)):
