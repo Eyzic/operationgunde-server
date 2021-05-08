@@ -18,7 +18,7 @@ strava = {
 }
 
 user = {
-    "2" : "Filip Helmroth",
+    "139ea9fe108b4bfd9fd3919b7a8d676a" : "Filip Helmroth",
     "a" : "Jonny",
     "b" : "Einar Ingemarsson ",
     "c" : "Thomas",
