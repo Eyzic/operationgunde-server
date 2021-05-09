@@ -234,7 +234,7 @@ def post_form_training():
     # If unexpected error occurs, return error
     return jsonify({ "error": "Failed" })
 
-# Create a group
+"""# Create a group
 @api_page.route("/api/group", methods=['POST'])
 def create_group():
 
@@ -253,7 +253,7 @@ def create_group():
     if res['nModified'] > 0:
         return jsonify({ "message": "group added successful"})
 
-    return jsonify({ "message": "group not inserted"})
+    return jsonify({ "message": "group not inserted"})"""
 
 
 # Add a group to an user
@@ -262,10 +262,18 @@ def add_group():
 
     user_id = request.json.get('user_id')
     group = request.json.get('group')
+    logo = request.json.get('logo')
 
     res = db.groups.update_one({'group' : group}, {'$addToSet':{'members': user_id}}, upsert = True)
-    
-    return jsonify({ "message": "user added successful"})
+    tmp = db.groups.find_one({'group' : group})
+
+    try:
+        x =  tmp['logo']
+    except:
+        db.groups.update_one({'group' : group}, {'$set':{'logo': logo}})
+        return jsonify({ "message": "user and group added successful"})
+
+    return jsonify({ "message": "user added successfully to group"})
 
 
 # Get an users group and number of members

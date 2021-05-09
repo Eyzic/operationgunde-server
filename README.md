@@ -43,11 +43,14 @@ The following is a quick guide on how to communicate with the database. Packages
 
 | HTTP Method | URI | Payload | Returns | Action |
 | --- | --- | --- | --- | --- |
-| POST | http://[hostname]/api/group | {'group': String, 'logo':String[cat/dog/lion/fox/owl]} | {'message'} or {'error'} | Create a group with a group logo |
+<!--| POST | http://[hostname]/api/group | {'group': String, 'logo':String[cat/dog/lion/fox/owl]} | {'message'} or {'error'} | Create a group with a group logo |-->
 | GET | http://[hostname]/api/group | {'group': String} | [{'name', 'user_id'}] or {'error'} | Get all the members (both names and user_id) of a specific group |
-| POST | http://[hostname]/api/user/group | {'user_id': String, 'group': String} | {'message'} | Adds an user to a group |
+| POST | http://[hostname]/api/user/group | {'user_id': String, 'group': String, 'logo': String[cat/dog/lion/fox/owl]}} | {'message'} | Adds an user to a group, if it doesn't exists it creates it |
 | GET | http://[hostname]/api/user/group | {'user_id': String} | [{'group', 'nb_members', 'logo'}] or {'error'} | Get all the groups that an user is member of |
-| GET | http://[hostname]/api/group/png | {'logo': String[cat/dog/lion/fox/owl]} | logo.png | Get a group logo in PNG format |
+| GET | http://[hostname]/api/organisation | {'organisation': String} | [{'name', 'user_id'}] or {'error'} | Get all the members (both names and user_id) of a specific organisation |
+| POST | http://[hostname]/api/user/organisation | {'user_id': String, 'organisation': String, 'logo': String[cat/dog/lion/fox/owl]}} | {'message'} | Adds an user to a organisation, if it doesn't exists it creates it |
+| GET | http://[hostname]/api/user/organisation | {'user_id': String} | [{'organisation', 'nb_members', 'logo'}] or {'error'} | Get all the organisations that an user is member of |
+| GET | http://[hostname]/get_png | {'logo': String[cat/dog/lion/fox/owl]} | logo.png | Get a group/organisation logo in PNG format |
 
 <!-- | POST | http://[hostname]/api/user/organisation | {'user_id': String, 'organisation': String} | {'message'} | Adds an organisation to an user |
 | GET | http://[hostname]/api/user/organisation | {'user_id': String} | [organisations] or {'error'} | Get all the organisations that an user is member of |
