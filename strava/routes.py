@@ -31,7 +31,7 @@ def authorize():
     values_url = urllib.parse.urlencode(params)
     base_url = 'https://www.strava.com/oauth/authorize'
     rv = base_url + '?' + values_url
-    # print(f"Authorize url = {rv}")
+    print(f"Authorize url = {rv}")
     
     webbrowser.get().open(rv)
 
@@ -60,49 +60,101 @@ def authorization_successful():
     else:
         return jsonify({ "error": "Failed to get access_token" })
     
+# Connects a user_id with a Strava strava_id
+@strava_page.route("/strava/connect/id", methods=['POST'])
+def connect_athlete_by_id():
+
+    json_payload = request.json
+
+    user_id = json_payload.get('user_id')
+    strava_id = json_payload.get('strava_id')
+    doc = db.strava_athlete_data.find_one({'strava_id': strava_id})
+
+    try:
+        db.user_data.update(
+            {
+                'user_id': user_id
+            }, 
+            {
+                "$set":{
+                    'strava.strava_id': strava_id,
+                    'strava.firstname': doc['firstname'],
+                    'strava.lastname': doc['lastname']
+                }
+            }
+            )
+
+        a = db.user_data.find_one({ "user_id" : {"$eq" : user_id } } )['_id']
+        b = db.user_data.find_one({ "strava.strava_id" : {"$eq" : strava_id } } )['_id']
+
+        if a == b:
+            return jsonify({ "message": "athlete_id and user_id connected"})
+
+        return jsonify({ "message": "athlete_id or user_id did not exist"})
+
+    except Exception as error:
+        return jsonify({ "error": "athlete_id or user_id did not exist"})
+
+# Connects a user_id with a Strava strava_id if FIRSTNAME and LASTNAME matches
+@strava_page.route("/strava/connect/name", methods=['POST'])
+def connect_athlete_by_name():
+
+    user_id = request.json.get('user_id')
+    doc = db.user_data.find_one({'user_id': user_id})
+    
+    try:
+        firstname, lastname = doc['name'].split()
+        
+        res = db.strava_athlete_data.find_one(
+            { "$and" : [
+                { "firstname" : firstname },
+                { "lastname" : lastname }
+            ]}
+            )
+        
+        strava_id = res['strava_id']
+
+        db.user_data.update(
+            {
+                'user_id': user_id
+            }, 
+            {
+                "$set":{
+                    'strava.strava_id': strava_id,
+                    'strava.firstname': res['firstname'],
+                    'strava.lastname': res['lastname']
+                }
+            }
+            )
+
+        a = db.user_data.find_one({ "user_id" : {"$eq" : user_id } } )['_id']
+        b = db.user_data.find_one({ "strava.strava_id" : {"$eq" : strava_id } } )['_id']
+
+        print(a)
+        print(b)
+
+        if a == b:
+            return jsonify({ "message": "user and Strava connected"})
+
+        return jsonify({ "error": "something went wrong"})
+
+    except Exception as error:
+        return jsonify({ "error": "user_id did not exist or name did not match FIRSTNAME LASTNAME"})
+
 
 # Send a parameter in JSON of the ID and get name as a return
 # Retrieves from local storage
 @strava_page.route('/strava/athlete', methods=['GET'])
 def athlete():
 
-    athlete_id = request.get_json()['athlete_id']
+    strava_id = request.args.get('strava_id')
     
     try:
-        doc = db.strava_athlete_data.find_one({'athlete_id': athlete_id})
-        rv = json.dumps({
+        doc = db.strava_athlete_data.find_one({'strava_id': strava_id})
+        rv = {
             'firstname': doc['firstname'],
             'lastname': doc['lastname']
-        })
-
-    except Exception as error:
-        print(error)
-        rv = None
-
-    return jsonify(rv)
-
-# Returns all activity data from athlete ID
-# Retrieves from local storage
-@strava_page.route("/strava/activities", methods=['GET'])
-def activities():
-
-    athlete_id = request.get_json()['athlete_id']
-    rv = []
-    
-    try:
-        for doc in db.strava_activity_data.find({'athlete_id': athlete_id}):
-            res = json.dumps({
-                    'activity_id': doc['activity_id'],
-                    'athlete_id': doc['athlete_id'],
-                    'start_date': doc['start_date'],
-                    'start_date_local': doc['start_date_local'],
-                    'distance': doc['distance'],
-                    'moving_time': doc['moving_time'],
-                    'elapsed_time': doc['elapsed_time'],
-                    'type': doc['type']
-                })
-
-            rv.append(res)
+        }
 
     except Exception as error:
         print(error)
@@ -111,18 +163,18 @@ def activities():
     return jsonify(rv)
 
 # Return all stored athletes in local storage
-@strava_page.route("/strava/athlete_all")
+@strava_page.route("/strava/athlete_all", methods=['GET'])
 def athlete_all():
 
     rv = []
     
     try:
         for doc in db.strava_athlete_data.find():
-            res = json.dumps({
+            res = {
                 'firstname': doc['firstname'],
                 'lastname': doc['lastname'],
-                'athlete_id': doc['athlete_id']
-            })
+                'strava_id': doc['strava_id']
+            }
 
             rv.append(res)
 
@@ -131,130 +183,3 @@ def athlete_all():
         rv = None
 
     return jsonify(rv)
-
-
-# Load athlete into local storage
-def load_athlete(access_token):
-    client = StravaIO(access_token)
-    athlete = client.get_logged_in_athlete()
-    athlete_id = athlete.api_response.id
-    f_name = os.path.join(os.path.expanduser('~'), f'.stravadata/athlete_{athlete_id}.json')
-    
-    if os.path.isfile(f_name):
-        # print(f"Athlete {athlete_id}: Already exists locally")
-
-        if db.strava_athlete_data.find({'athlete_id': athlete_id}).count() == 0:
-            store_athlete_in_mongo(athlete_id)
-
-    else:
-        athlete.store_locally()
-        # print(f"Athlete {athlete_id}: Stored locally")
-        store_athlete_in_mongo(athlete_id)
-        
-
-# Load athletes acitivties into local storage
-def load_activities(access_token):
-
-    # Date cariable that sets the lower range for Strava data acquisition  
-    get_from_date = config.strava['STRAVA_FETCH_DATA_DATE']
-    if get_from_date is None: get_from_date = "2021-04-01"
-
-    client = StravaIO(access_token)
-    activities = client.get_logged_in_athlete_activities(after=get_from_date)
-    athlete_id = client.get_logged_in_athlete().api_response.id
-
-    for a in activities:
-        activity_id = a.id
-        activity = client.get_activity_by_id(activity_id)
-        f_name = os.path.join(os.path.expanduser('~'), f'.stravadata/activities_{athlete_id}/activity_{activity_id}.json')
-
-        if os.path.isfile(f_name):
-            # print(f"Activity {activity_id}: Already exists locally")
-
-            if db.strava_activity_data.find({'activity_id': activity_id}).count() == 0:
-                store_activity_in_mongo(athlete_id, activity_id)
-
-        else:
-            activity.store_locally() 
-            store_activity_in_mongo(athlete_id, activity_id)
-            # print(f"Activity {activity_id}: Stored locally")
-    
-# Submit local athlete data to MongoDB
-def store_athlete_in_mongo(athlete_id):
-
-    """Store athlete in MongoDB"""
-
-    dir_name = os.path.join(os.path.expanduser('~'), '.stravadata')
-    f_name = os.path.join(dir_name, f"athlete_{athlete_id}.json")
-
-    try:    
-        with open(f_name, 'r') as f:
-            data = json.load(f)
-            res = db.strava_athlete_data.update_one(
-                {
-                    'athlete_id': data['id']
-                }, 
-                {
-                    "$set":{
-                        'firstname': data['firstname'],
-                        'lastname': data['lastname'],
-                    }
-                },    
-                upsert = True
-                )
-            
-            """
-            if res.matched_count > 0:
-                print(f"{data['firstname']} {data['lastname']} already in database")
-            elif db.strava_athlete_data.find({'athlete_id': athlete_id}).count() > 0:
-                print(f"{data['firstname']} {data['lastname']} uploaded to database")
-            else: 
-                print("Error when uploading")
-            """
-            
-    except Exception as error:
-        print(error)
-
-# Submit local activity data to MongoDB
-def store_activity_in_mongo(athlete_id, activity_id):
-
-    """Store activity in MongoDB"""
-    
-    dir_activities = os.path.join(os.path.expanduser('~'), f'.stravadata/activities_{athlete_id}')
-    f_name = os.path.join(dir_activities, f"activity_{activity_id}.json")
-
-    if not os.path.exists(dir_activities):
-        return jsonify(f"Directory missing for athlete {athlete_id}")
-
-    try:    
-        with open(f_name, 'r') as f:
-            data = json.load(f)
-            res = db.strava_activity_data.update_one(
-                {
-                    'activity_id': data['id']
-                }, 
-                {
-                    "$set":{
-                        'athlete_id': data['athlete']['id'],
-                        'start_date': data['start_date'],
-                        'start_date_local': data['start_date_local'],
-                        'distance': data['distance'],
-                        'moving_time': data['moving_time'],
-                        'elapsed_time': data['elapsed_time'],
-                        'type': data['type']
-                    }
-                },    
-                upsert = True
-                )
-
-            """
-            if res.matched_count > 0:
-                print(f"Activity {data['id']} already in database")
-            elif db.strava_activity_data.find({'activity_id': data['id']}).count() > 0:
-                print(f"Activity {data['id']} uploaded to database")
-            else: 
-                print("Error when uploading")
-            """
-
-    except Exception as error:
-        print(error)

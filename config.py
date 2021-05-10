@@ -16,3 +16,12 @@ strava = {
     "STRAVA_REFRESH_TOKEN" : "06cbd0a56c10357d40846272b02fbab263b0791a",
     "STRAVA_FETCH_DATA_DATE": "2021-04-01"
 }
+
+user = {
+    "139ea9fe108b4bfd9fd3919b7a8d676a" : "Filip Helmroth",
+    "a" : "Jonny",
+    "b" : "Einar Ingemarsson ",
+    "c" : "Thomas",
+    "d" : "C",
+    "e" : "Jessica"    
+}
