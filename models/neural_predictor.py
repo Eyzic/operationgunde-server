@@ -18,8 +18,6 @@ def dropna(HRV, TL):
 
 
 def HRV_tomorrow(Name):
-    print(Name)
-    print(nameWorkout)
     x = len(nameWorkout)-1
     while nameWorkout[x] != Name:
         x -= 1

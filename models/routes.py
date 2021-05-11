@@ -18,10 +18,4 @@ def create_group():
 
     name = config.user[user_id]
     rv = HRV_tomorrow(name)
-    return jsonify(rv[0])
-
-    
-
-# Get HRV value from model [X]
-# @ml_page.route('/ml/predict', methods=['GET'])
-#def get_hrv():
+    return jsonify({'predicted_hrv': int(round(rv[0]))})
