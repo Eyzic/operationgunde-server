@@ -16,7 +16,6 @@ def add_to_hrv_xlsx(stats):
     
     new_row = [date, user, stats['hrv'], stats['sleeping_hours'], stats['stress_level'], stats['muscle_ache'], stats['mood_level'], stats['injury_level'], stats['energy_level'], "Ja"]
 
-    print(new_row)
     # Confirm file exists. 
     # If not, create it, add headers, then append new data
     
@@ -57,7 +56,6 @@ def add_to_training_xlsx(stats):
     
     new_row = [date, user, day, stats['training_intensity'], stats['elapsed_time'], stats['training_type'], stats['energy_level'], ""]
 
-    print(new_row)
     # Confirm file exists. 
     # If not, create it, add headers, then append new data
     
